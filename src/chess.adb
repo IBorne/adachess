@@ -2,9 +2,7 @@ package body Chess is
 
   function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer) return Boolean is
   begin
-    Put_Line("x_start :" & Integer'Image(x_start) & ".");
     if Chess.game_board(x_end, y_end) = forbidden then
-      Put_Line("here");
       return False;
     end if;
     return True;
@@ -35,8 +33,8 @@ package body Chess is
     Chess.game_board(3,3) := rook_white;
     Chess.game_board(4,3) := knight_white;
     Chess.game_board(5,3) := bishop_white;
-    Chess.game_board(6,3) := king_white;
-    Chess.game_board(7,3) := queen_white;
+    Chess.game_board(6,3) := queen_white;
+    Chess.game_board(7,3) := king_white;
     Chess.game_board(8,3) := bishop_white;
     Chess.game_board(9,3) := knight_white;
     Chess.game_board(10,3) := rook_white;
@@ -61,16 +59,28 @@ package body Chess is
 
   procedure print_gameboard is
     procedure print_cell(c : Cell) is
+    begin
       case c is
-        when empty => Put("");
-        when forbidden => Put("");
-        when pawn_white => Put("pW");
-          when rook_white =>
+        when empty        => Put(".");
+        when forbidden    => Put("X");
+        when pawn_white   => Put("P");
+        when rook_white   => Put("R");
+        when knight_white => Put("N");
+        when bishop_white => Put("B");
+        when queen_white  => Put("Q");
+        when king_white   => Put("K");
+        when pawn_black   => Put("p");
+        when rook_black   => Put("r");
+        when knight_black => Put("n");
+        when bishop_black => Put("b");
+        when queen_black  => Put("q");
+        when king_black   => Put("k");
+      end case;
     end print_cell;
   begin
-    for letter in 1 .. 12 loop
-      for number in 1 .. 12 loop
-        Put(" " & Cell'Image(Chess.game_board(letter, number)) & " ");
+    for letter in 3 .. 10 loop
+      for number in 3 .. 10 loop
+        print_cell(Chess.game_board(letter, number));
       end loop;
       Put_Line("");
     end loop;

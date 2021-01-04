@@ -17,12 +17,12 @@ begin
   Main_Loop:
   while(True) loop -- is_game_end()
     Ada.Text_IO.Get_Line (Str, Last);
-    x_start := Integer'Value(Str(1 .. 1));
-    y_start := Integer'Value(Str(2 .. 2));
-    x_end := Integer'Value(Str(4 .. 4));
-    y_end := Integer'Value(Str(5 .. 5));
+    x_start := Character'Pos(Str(1)) - Character'Pos('A') + 3;
+    y_start := Integer'Value(Str(2 .. 2)) + 2;
+    x_end := Character'Pos(Str(4)) - Character'Pos('A') + 3;
+    y_end := Integer'Value(Str(5 .. 5)) + 2;
 
-    if not is_valid_move(x_start, y_start, x_end, y_end) then
+    if not is_valid_move(x_start , y_start, x_end, y_end) then
       Put_Line("Input a valid move");
     else
       move_piece(x_start, y_start, x_end, y_end);
