@@ -2,9 +2,9 @@ with Ada.Text_IO; use Ada.Text_IO;
 package Chess is
     size : constant := 12;
     subtype game_size is Integer range 1 .. size;
-    type Cell is (empty, forbidden,
-                  pawn_white, rook_white, knight_white, bishop_white, queen_white, king_white,
-                  pawn_black, rook_black, knight_black, bishop_black, queen_black, king_black);
+    type Cell is (Empty, Forbidden,
+                  Pawn_white, Rook_white, Knight_white, Bishop_white, Queen_white, King_white,
+                  Pawn_black, Rook_black, Knight_black, Bishop_black, Queen_black, King_black);
     subtype white_range is Natural range 3 .. 8;
     subtype black_range is Natural range 9 .. 14;
 
@@ -16,7 +16,8 @@ package Chess is
 
     function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player) return Boolean;
     procedure init_gameboard;
-    procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer);
+    function get_piece_at(x : in Integer; y : in Integer; p : in Player) return Cell;
+    procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player);
     procedure print_gameboard;
 private
 

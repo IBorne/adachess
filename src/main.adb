@@ -2,15 +2,15 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Chess; use Chess;
 
 procedure main is
-    Str  : String (1 .. 80);
-    Last : Natural;
+    Str     : String (1 .. 80);
+    Last    : Natural;
 
     x_start : Integer;
     y_start : Integer;
-    x_end : Integer;
-    y_end : Integer;
+    x_end   : Integer;
+    y_end   : Integer;
 
-    side     : Player := White;
+    side    : Player := White;
 begin
     init_gameboard;
     print_gameboard;
@@ -33,8 +33,10 @@ begin
             -- TODO: take care of cases where king is check
             -- TODO: transform a pawn into queen if pawn at last row
 
-            move_piece(x_start, y_start, x_end, y_end);
+            move_piece(x_start, y_start, x_end, y_end, side);
             print_gameboard;
+
+            side := (if side = White then Black else White);
         end if;
       end loop;
 end main;
