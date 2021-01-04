@@ -1,0 +1,8 @@
+*.o
+*.ali
+*.std*
+*.bexch
+*#
+*.db*
+main
+*xml

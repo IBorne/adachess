@@ -1,9 +1,78 @@
 package body Chess is
 
-  procedure move_piece(x_start : in X; y_start : in Y; x_end : in X; y_end : in Y) is
+  function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer) return Boolean is
+  begin
+    Put_Line("x_start :" & Integer'Image(x_start) & ".");
+    if Chess.game_board(x_end, y_end) = forbidden then
+      Put_Line("here");
+      return False;
+    end if;
+    return True;
+  end is_valid_move;
+
+  procedure init_gameboard is
+  begin
+    for number in 1 .. 12 loop
+      for letter in 1 .. 12 loop
+          Chess.game_board(letter, number) := forbidden;
+      end loop;
+    end loop;
+
+    for number in 5 .. 8 loop
+      for letter in 3 .. 10 loop
+        Chess.game_board(letter,number) := empty;
+      end loop;
+    end loop;
+
+    for letter in 3 .. 10 loop
+      Chess.game_board(letter, 4) := pawn_white;
+    end loop;
+
+    for letter in 3 .. 10 loop
+      Chess.game_board(letter, 9) := pawn_black;
+    end loop;
+
+    Chess.game_board(3,3) := rook_white;
+    Chess.game_board(4,3) := knight_white;
+    Chess.game_board(5,3) := bishop_white;
+    Chess.game_board(6,3) := king_white;
+    Chess.game_board(7,3) := queen_white;
+    Chess.game_board(8,3) := bishop_white;
+    Chess.game_board(9,3) := knight_white;
+    Chess.game_board(10,3) := rook_white;
+
+    Chess.game_board(3,10) := rook_black;
+    Chess.game_board(4,10) := knight_black;
+    Chess.game_board(5,10) := bishop_black;
+    Chess.game_board(6,10) := queen_black;
+    Chess.game_board(7,10) := king_black;
+    Chess.game_board(8,10) := bishop_black;
+    Chess.game_board(9,10) := knight_black;
+    Chess.game_board(10,10) := rook_black;
+
+  end init_gameboard;
+
+  procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer) is
   begin
     --get board piece, move it the new coord
-    game_board(x_end, y_end) := game_board(x_start, y_start);
-    game_board(x_start, y_start) := empty;
-  end
+    Chess.game_board(x_end, y_end) := Chess.game_board(x_start, y_start);
+    Chess.game_board(x_start, y_start) := empty;
+  end;
+
+  procedure print_gameboard is
+    procedure print_cell(c : Cell) is
+      case c is
+        when empty => Put("");
+        when forbidden => Put("");
+        when pawn_white => Put("pW");
+          when rook_white =>
+    end print_cell;
+  begin
+    for letter in 1 .. 12 loop
+      for number in 1 .. 12 loop
+        Put(" " & Cell'Image(Chess.game_board(letter, number)) & " ");
+      end loop;
+      Put_Line("");
+    end loop;
+  end print_gameboard;
 end Chess;
