@@ -10,6 +10,9 @@ procedure main is
     x_end   : Integer;
     y_end   : Integer;
 
+    -- previous move
+    prev    : String(1 .. 5) := "     ";
+
     side    : Player := White;
 begin
     init_gameboard;
@@ -27,7 +30,7 @@ begin
         x_end := Character'Pos(Str(4)) - Character'Pos('A') + 3;
         y_end := Integer'Value(Str(5 .. 5)) + 2;
 
-        if not is_valid_move(x_start, y_start, x_end, y_end, side) then
+        if not is_valid_move(x_start, y_start, x_end, y_end, side, prev) then
             Put_Line("Input a valid move");
         else
             -- TODO: take care of cases where king is check
@@ -36,6 +39,7 @@ begin
             move_piece(x_start, y_start, x_end, y_end, side);
             print_gameboard;
 
+            prev := Str(1 .. 5);
             side := (if side = White then Black else White);
         end if;
       end loop;

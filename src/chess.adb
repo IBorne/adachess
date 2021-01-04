@@ -1,21 +1,23 @@
 package body Chess is
     -- TODO: check for any missing element
-    function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player) return Boolean is
+    function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean is
         function get_player(c : in Cell) return Player is
 --            with Pre => Cell'Pos(c) in white_range or Cell'Pos(c) in black_range;
         begin
             return (if Cell'Pos(c) in white_range then White else Black);
         end get_player;
 
-        function valid_piece_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player) return Boolean is
+        function valid_piece_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean is
 --            with Pre => get_piece_at(x_start, y_start, p) /= Empty
 --                    and get_piece_at(x_start, y_start, p) /= Forbidden;
 
-            function is_valid_pawn(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player) return Boolean is
+            function is_valid_pawn(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean is
                 function is_pawn(c : in Cell) return Boolean is
                 begin
                     return c = Rook_black or c = Rook_white;
                 end is_pawn;
+
+                L : constant Character := Character'Val(x_end + Character'Pos('A'));
             begin
                 -- Normal move : straight 1
                 if delta_y = 1 and delta_x = 0 and get_piece_at(x_end, y_end, p) = Empty then
@@ -30,8 +32,9 @@ package body Chess is
                 if delta_y = 1 and abs delta_x = 1 then
                     -- Capture piece : en passant
                     if get_piece_at(x_end, y_end, p) = Empty then
-                        -- TODO: store last move
-                        return y_start = 5 and is_pawn(get_piece_at(x_end, 5, p)); --and previous_move = "X2 X4" with X = x_end
+                        return y_start = 5
+                            and is_pawn(get_piece_at(x_end, 5, p))
+                            and prev = L & '2' & ' ' & L & '4';
                     -- Capture piece : diagonal 1
                     else
                         return True;
@@ -99,7 +102,7 @@ package body Chess is
             delta_y : constant Integer := (y_end - y_start);
         begin
             case get_piece_at(x_start, y_start, p) is
-                when Pawn_white     | Pawn_black    => return is_valid_pawn(delta_x, delta_y, x_start, y_start, x_end, y_end, p);
+                when Pawn_white     | Pawn_black    => return is_valid_pawn(delta_x, delta_y, x_start, y_start, x_end, y_end, p, prev);
                 when Rook_white     | Rook_black    => return is_valid_rook(delta_x, delta_y, x_start, y_start, p);
                 when Knight_white   | Knight_black  => return is_valid_knight(delta_x, delta_y);
                 when Bishop_white   | Bishop_black  => return is_valid_bishop(delta_x, delta_y, x_start, y_start, p);
@@ -125,7 +128,7 @@ package body Chess is
             return False;
         end if;
 
-        return valid_piece_move(x_start, y_start, x_end, y_end, p);
+        return valid_piece_move(x_start, y_start, x_end, y_end, p, prev);
     end is_valid_move;
 
     procedure init_gameboard is
@@ -164,7 +167,7 @@ package body Chess is
         Chess.game_board(5,10) := Bishop_black;
         Chess.game_board(6,10) := Queen_black;
         Chess.game_board(7,10) := King_black;
-        Chess.game_board(8,10) := Kishop_black;
+        Chess.game_board(8,10) := Bishop_black;
         Chess.game_board(9,10) := Knight_black;
         Chess.game_board(10,10) := Rook_black;
     end init_gameboard;
@@ -177,28 +180,33 @@ package body Chess is
     procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player) is
     begin
         -- get board piece, move it the new coord
-        get_piece_at(x_end, y_end, p) := get_piece_at(x_start, y_start, p);
-        get_piece_at(x_start, y_start, p) := Empty;
+        if p = White then
+            Chess.game_board(x_end, y_end) := Chess.game_board(x_start, y_start);
+            Chess.game_board(x_start, y_start) := Empty;
+        else
+            Chess.game_board(x_end, 9 - y_end) := Chess.game_board(x_start, 9 - y_start);
+            Chess.game_board(x_start, 9 - y_start) := Empty;
+        end if;
     end;
 
     procedure print_gameboard is
         procedure print_cell(c : Cell) is
         begin
             case c is
-                when empty        => Put(".");
-                when forbidden    => Put("X");
-                when pawn_white   => Put("P");
-                when rook_white   => Put("R");
-                when knight_white => Put("N");
-                when bishop_white => Put("B");
-                when queen_white  => Put("Q");
-                when king_white   => Put("K");
-                when pawn_black   => Put("p");
-                when rook_black   => Put("r");
-                when knight_black => Put("n");
-                when bishop_black => Put("b");
-                when queen_black  => Put("q");
-                when king_black   => Put("k");
+                when Empty        => Put(".");
+                when Forbidden    => Put("X");
+                when Pawn_white   => Put("P");
+                when Rook_white   => Put("R");
+                when Knight_white => Put("N");
+                when Bishop_white => Put("B");
+                when Queen_white  => Put("Q");
+                when King_white   => Put("K");
+                when Pawn_black   => Put("p");
+                when Rook_black   => Put("r");
+                when Knight_black => Put("n");
+                when Bishop_black => Put("b");
+                when Queen_black  => Put("q");
+                when King_black   => Put("k");
             end case;
         end print_cell;
     begin
