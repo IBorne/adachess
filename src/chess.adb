@@ -1,5 +1,5 @@
 package body Chess is
-    -- TODO: continue function
+    -- TODO: check for any missing element
     function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player) return Boolean is
         function get_player(c : in Cell) return Player is
 --            with Pre => Cell'Pos(c) in white_range or Cell'Pos(c) in black_range;
@@ -7,54 +7,99 @@ package body Chess is
             return (if Cell'Pos(c) in white_range then White else Black);
         end get_player;
 
-        function is_valid_pawn(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer) return Boolean is
-        begin
-            -- FIXME
-            return True;
-        end is_valid_pawn;
-
-        function is_valid_rook(delta_x : in Integer; delta_y : in Integer) return Boolean is
-        begin
-            return delta_x = 0 or delta_y = 0;
-        end is_valid_rook;
-
-        function is_valid_knight(delta_x : in Integer; delta_y : in Integer) return Boolean is
-        begin
-            return (abs delta_x = 1 and abs delta_y = 3)
-                or (abs delta_x = 3 and abs delta_y = 1);
-        end is_valid_knight;
-
-        function is_valid_bishop(delta_x : in Integer; delta_y : in Integer) return Boolean is
-        begin
-            return abs delta_x = abs delta_y;
-        end is_valid_bishop;
-
-        function is_valid_queen(delta_x : in Integer; delta_y : in Integer) return Boolean is
-        begin
-            return is_valid_knight(delta_x, delta_y)
-                or is_valid_bishop(delta_x, delta_y);
-        end is_valid_queen;
-
-        function is_valid_king(delta_x : in Integer; delta_y : in Integer) return Boolean is
-        begin
-            return abs delta_x = 1 or abs delta_y = 1;
-        end is_valid_king;
-
         function valid_piece_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer) return Boolean is
---            with Pre => Chess.game_board(x_start, y_start) /= empty
---                    and Chess.game_board(x_start, y_start) /= forbidden;
+--            with Pre => Chess.game_board(x_start, y_start) /= Empty
+--                    and Chess.game_board(x_start, y_start) /= Forbidden;
+
+            function is_valid_pawn(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer) return Boolean is
+            begin
+				-- Normal move : straight 1
+				if delta_y = 1 and delta_x = 0 and Chess.game_board(x_end, y_end) = Empty then
+					return True;
+				end if;
+
+				-- Start move : straight 2
+				if delta_y = 2 and delta_x = 0 and y_start = 2 and Chess.game_board(x_end, y_end) = Empty then
+					return True;
+				end if;
+
+				if delta_y = 1 and abs delta_x = 1 then
+					-- Capture piece : en passant
+					if Chess.game_board(x_end, y_end) = Empty then
+						-- TODO: store last move
+						return y_start = 5; -- and previous_move = "X2 X4" with X = x_end
+					-- Capture piece : diagonal 1
+					else
+						return True;
+					end if;
+				end if;
+
+                return False;
+            end is_valid_pawn;
+
+            function is_valid_rook(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer) return Boolean is
+            begin
+				-- Check if the way is clear
+                if delta_x /= 0 and delta_y /= 0 then
+					return False;
+				end if;
+
+				-- FIXME: check if loop is actually valid
+				for y in y_start .. y_start + delta_y loop
+					for x in x_start .. x_start + delta_x loop
+						if Chess.game_board(x, y) /= Empty then
+							return False;
+						end if;
+					end loop;
+				end loop;
+
+				return True;
+            end is_valid_rook;
+
+            function is_valid_knight(delta_x : in Integer; delta_y : in Integer) return Boolean is
+            begin
+                return (abs delta_x = 1 and abs delta_y = 3)
+                    or (abs delta_x = 3 and abs delta_y = 1);
+            end is_valid_knight;
+
+            function is_valid_bishop(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer) return Boolean is
+				dir_x : constant Integer := delta_x / abs delta_x;
+				dir_y : constant Integer := delta_y / abs delta_y;
+            begin
+                if abs delta_x /= abs delta_y then
+					return False;
+				end if;
+
+				-- Check if the way is clear
+				for i in 1 .. (abs delta_x) - 1 loop
+					if Chess.game_board(x_start + i * dir_x, y_start + i * dir_y) /= Empty then
+						return False;
+					end if;
+				end loop;
+
+				return True;
+            end is_valid_bishop;
+
+            function is_valid_queen(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer) return Boolean is
+            begin
+                return is_valid_rook(delta_x, delta_y, x_start, y_start)
+                    or is_valid_bishop(delta_x, delta_y, x_start, y_start);
+            end is_valid_queen;
+
+            function is_valid_king(delta_x : in Integer; delta_y : in Integer) return Boolean is
+            begin
+                return abs delta_x = 1 or abs delta_y = 1;
+            end is_valid_king;
 
             delta_x : constant Integer := (x_end - x_start);
             delta_y : constant Integer := (y_end - y_start);
         begin
             case Chess.game_board(x_start, y_start) is
-                when Pawn_white                     => return is_valid_pawn(x_start, x_end, delta_x, delta_y);
-                -- FIXME: mirror the move
-                when Pawn_black                     => return True;
-                when Rook_white     | Rook_black    => return is_valid_rook(delta_x, delta_y);
+                when Pawn_white		| Pawn_black    => return is_valid_pawn(delta_x, delta_y, x_start, y_start, x_end, y_end);
+                when Rook_white     | Rook_black    => return is_valid_rook(delta_x, delta_y, x_start, y_start);
                 when Knight_white   | Knight_black  => return is_valid_knight(delta_x, delta_y);
-                when Bishop_white   | Bishop_black  => return is_valid_bishop(delta_x, delta_y);
-                when Queen_white    | Queen_black   => return is_valid_queen(delta_x, delta_y);
+                when Bishop_white   | Bishop_black  => return is_valid_bishop(delta_x, delta_y, x_start, y_start);
+                when Queen_white    | Queen_black   => return is_valid_queen(delta_x, delta_y, x_start, y_start);
                 when King_white     | King_black    => return is_valid_king(delta_x, delta_y);
                 when Empty          | Forbidden     => return False;
             end case;
@@ -67,9 +112,7 @@ package body Chess is
         end if;
 
         -- Check if start piece is valid
-        if Chess.game_board(x_start, y_start) = empty
-            or Chess.game_board(x_start, y_start) = forbidden
-            or get_player(Chess.game_board(x_end, y_end)) /= p then
+        if get_player(Chess.game_board(x_end, y_end)) /= p then
             return False;
         end if;
 
