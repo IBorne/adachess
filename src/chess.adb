@@ -40,12 +40,12 @@ package body Chess is
         Chess.game_board(10,10) := Rook_black;
     end init_gameboard;
 
-    function get_piece_at(x : in Integer; y : in Integer; p : in Player) return Cell is
+    function get_piece_at(x : in Integer; y : in Integer) return Cell is
     begin
         return (if p = White then Chess.game_board(x + 2, y + 2) else Chess.game_board(x + 2, 11 - y));
     end get_piece_at;
 
-    procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player) is
+    procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer) is
     begin
         -- get board piece, move it the new coord
         if p = White then
@@ -78,11 +78,20 @@ package body Chess is
             end case;
         end print_cell;
     begin
-        for letter in 3 .. 10 loop
+        if side = Black then
             for number in 3 .. 10 loop
-                print_cell(Chess.game_board(letter, number));
+                for letter in 3 .. 10 loop
+                    print_cell(Chess.game_board(letter, number));
+                end loop;
+                Put_Line("");
             end loop;
-            Put_Line("");
-        end loop;
+        else
+            for number in reverse 3 .. 10 loop
+                for letter in reverse 3 .. 10 loop
+                    print_cell(Chess.game_board(letter, number));
+                end loop;
+                Put_Line("");
+            end loop;
+        end if;
     end print_gameboard;
 end Chess;
