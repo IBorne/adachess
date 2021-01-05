@@ -5,8 +5,8 @@ package Chess is
     type Cell is (Empty, Forbidden,
                   Pawn_white, Rook_white, Knight_white, Bishop_white, Queen_white, King_white,
                   Pawn_black, Rook_black, Knight_black, Bishop_black, Queen_black, King_black);
-    subtype white_range is Natural range 3 .. 8;
-    subtype black_range is Natural range 9 .. 14;
+    subtype white_range is Natural range 2 .. 7;
+    subtype black_range is Natural range 8 .. 13;
 
     type Player is (White, Black);
 
@@ -14,7 +14,6 @@ package Chess is
 
     game_board : Board;
 
-    function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean;
     procedure init_gameboard;
     function get_piece_at(x : in Integer; y : in Integer; p : in Player) return Cell;
     procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player);
