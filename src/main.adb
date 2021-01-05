@@ -13,13 +13,11 @@ procedure main is
     -- previous move
     prev    : String(1 .. 5) := "     ";
 
-    side    : Player := White;
+
 
     function check_input return Boolean is
     begin
         Ada.Text_IO.Get_Line (Str, Last);
-        Put_Line ("." & Str(1 .. Last) & ".");
-        Put_Line("length:" & Integer'Image(Str(1 .. Last)'Length));
         if Str(1 .. Last)'Length /= 5 then
             return False;
         end if;
@@ -41,13 +39,13 @@ begin
 
         if check_input = False then
             Put_Line("Wrong input. Usage:E2 E4");
-        elsif not is_valid_move(x_start, y_start, x_end, y_end, side, prev) then
+        elsif not is_valid_move(x_start, y_start, x_end, y_end, prev) then
             Put_Line("Input a valid move");
         else
             -- TODO: take care of cases where king is check
             -- TODO: transform a pawn into queen if pawn at last row
 
-            move_piece(x_start, y_start, x_end, y_end, side);
+            move_piece(x_start, y_start, x_end, y_end);
             print_gameboard;
 
             prev := Str(1 .. 5);

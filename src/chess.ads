@@ -9,15 +9,15 @@ package Chess is
     subtype black_range is Natural range 9 .. 14;
 
     type Player is (White, Black);
+    side    : Player := White;
 
     type Board is array (game_size,game_size) of Cell;
-
     game_board : Board;
 
-    function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean;
+    function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer;  prev : in String) return Boolean;
     procedure init_gameboard;
-    function get_piece_at(x : in Integer; y : in Integer; p : in Player) return Cell;
-    procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player);
+    function get_piece_at(x : in Integer; y : in Integer) return Cell;
+    procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer);
     procedure print_gameboard;
 private
 
