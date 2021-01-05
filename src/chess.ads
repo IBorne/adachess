@@ -8,7 +8,7 @@ package Chess is
     subtype white_range is Natural range 2 .. 7;
     subtype black_range is Natural range 8 .. 13;
 
-    type Player is (White, Black);
+    type Player is (White, Black, Player_unknown);
     side    : Player := White;
 
     type Board is array (game_size,game_size) of Cell;
