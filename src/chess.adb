@@ -42,7 +42,7 @@ package body Chess is
 
     function get_piece_at(x : in Integer; y : in Integer; p : in Player) return Cell is
     begin
-        return (if p = White then Chess.game_board(x + 2, y + 2) else Chess.game_board(x + 2, 11 - y));
+        return (if p = White then Chess.game_board(x + 2, y + 2) else Chess.game_board(11 - x, 11 - y));
     end get_piece_at;
 
     procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player) is
@@ -52,12 +52,12 @@ package body Chess is
             Chess.game_board(x_end + 2, y_end + 2) := Chess.game_board(x_start + 2, y_start + 2);
             Chess.game_board(x_start + 2, y_start + 2) := Empty;
         else
-            Chess.game_board(x_end + 2, 11 - y_end) := Chess.game_board(2 + x_start, 11 - y_start);
-            Chess.game_board(x_start + 2, 11 - y_start) := Empty;
+            Chess.game_board(11 - x_end, 11 - y_end) := Chess.game_board(11 - x_start, 11 - y_start);
+            Chess.game_board(11 - x_start, 11 - y_start) := Empty;
         end if;
     end;
 
-    procedure print_gameboard is
+    procedure print_gameboard(side : in Player) is
         procedure print_cell(c : Cell) is
         begin
             case c is
@@ -78,20 +78,11 @@ package body Chess is
             end case;
         end print_cell;
     begin
-        if side = Black then
-            for number in 3 .. 10 loop
-                for letter in 3 .. 10 loop
-                    print_cell(Chess.game_board(letter, number));
-                end loop;
-                Put_Line("");
+        for y in reverse 1 .. 8 loop
+            for x in 1 .. 8 loop
+                print_cell(get_piece_at(x, y, side));
             end loop;
-        else
-            for number in reverse 3 .. 10 loop
-                for letter in reverse 3 .. 10 loop
-                    print_cell(Chess.game_board(letter, number));
-                end loop;
-                Put_Line("");
-            end loop;
-        end if;
+            Put_Line("");
+        end loop;
     end print_gameboard;
 end Chess;
