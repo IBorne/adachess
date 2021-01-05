@@ -29,8 +29,8 @@ package body Chess_tb is
 		Assert(get_piece_at(1, 1, Black) = Rook_black, "Chess_tb (test_get_piece_at) : Black rook incorrect");
         Assert(get_piece_at(2, 1, Black) = Knight_black, "Chess_tb (test_get_piece_at) : Black knight incorrect");
         Assert(get_piece_at(3, 1, Black) = Bishop_black, "Chess_tb (test_get_piece_at) : Black bishop incorrect");
-        Assert(get_piece_at(4, 1, Black) = Queen_black, "Chess_tb (test_get_piece_at) : Black queen incorrect");
-        Assert(get_piece_at(5, 1, Black) = King_black, "Chess_tb (test_get_piece_at) : Black king incorrect");
+        Assert(get_piece_at(4, 1, Black) = King_black, "Chess_tb (test_get_piece_at) : Black king incorrect");
+        Assert(get_piece_at(5, 1, Black) = Queen_black, "Chess_tb (test_get_piece_at) : Black queen incorrect");
         Assert(get_piece_at(6, 1, Black) = Bishop_black, "Chess_tb (test_get_piece_at) : Black bishop incorrect");
         Assert(get_piece_at(7, 1, Black) = Knight_black, "Chess_tb (test_get_piece_at) : Black knight incorrect");
         Assert(get_piece_at(8, 1, Black) = Rook_black, "Chess_tb (test_get_piece_at) : Black rook incorrect");
