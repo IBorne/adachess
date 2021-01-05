@@ -14,6 +14,21 @@ procedure main is
     prev    : String(1 .. 5) := "     ";
 
     side    : Player := White;
+
+    function check_input return Boolean is
+    begin
+        Ada.Text_IO.Get_Line (Str, Last);
+        Put_Line ("." & Str(1 .. Last) & ".");
+        Put_Line("length:" & Integer'Image(Str(1 .. Last)'Length));
+        if Str(1 .. Last)'Length /= 5 then
+            return False;
+        end if;
+        x_start := Character'Pos(Str(1)) - Character'Pos('A') + 3;
+        y_start := Integer'Value(Str(2 .. 2)) + 2;
+        x_end := Character'Pos(Str(4)) - Character'Pos('A') + 3;
+        y_end := Integer'Value(Str(5 .. 5)) + 2;
+        return True;
+    end check_input;
 begin
     init_gameboard;
     print_gameboard;
@@ -24,13 +39,9 @@ begin
 
         -- TODO: take care of castling
 
-        Ada.Text_IO.Get_Line (Str, Last);
-        x_start := Character'Pos(Str(1)) - Character'Pos('A') + 3;
-        y_start := Integer'Value(Str(2 .. 2)) + 2;
-        x_end := Character'Pos(Str(4)) - Character'Pos('A') + 3;
-        y_end := Integer'Value(Str(5 .. 5)) + 2;
-
-        if not is_valid_move(x_start, y_start, x_end, y_end, side, prev) then
+        if check_input = False then
+            Put_Line("Wrong input. Usage:E2 E4");
+        elsif not is_valid_move(x_start, y_start, x_end, y_end, side, prev) then
             Put_Line("Input a valid move");
         else
             -- TODO: take care of cases where king is check
