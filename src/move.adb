@@ -1,3 +1,5 @@
+with Ada.Text_IO; use Ada.Text_IO;
+
 with Chess; use Chess;
 
 package body Move is
@@ -119,12 +121,13 @@ package body Move is
         end if;
 
         -- Check if start piece is valid
-        if get_player(get_piece_at(x_end, y_end, p)) /= p then
+        if get_player(get_piece_at(x_start, y_start, p)) /= p then
             return False;
         end if;
 
         -- Check if end piece is ennemy (yes, you can't kill your allies)
-        if get_player(get_piece_at(x_end, y_end, p)) = p then
+        if get_piece_at(x_end, y_end, p) /= Empty
+			or get_player(get_piece_at(x_end, y_end, p)) = p then
             return False;
         end if;
 

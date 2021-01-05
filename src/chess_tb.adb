@@ -40,14 +40,13 @@ package body Chess_tb is
     procedure test_move_piece is
     begin
 		init_gameboard;
-
 		move_piece(1, 2, 1, 4, White);
-		print_gameboard;
 		Assert(get_piece_at(1, 4, White) = Pawn_white, "Chess_tb (test_move_piece) : Start move for White pawn incorrect");
 		move_piece(1, 4, 1, 5, White);
 		Assert(get_piece_at(1, 5, White) = Pawn_white, "Chess_tb (test_move_piece) : Normal move for White pawn incorrect");
 		Put_Line("Chess_tb - test_move_piece (White pieces) : Success");
 
+		init_gameboard;
 		move_piece(1, 2, 1, 4, Black);
 		Assert(get_piece_at(1, 4, Black) = Pawn_black, "Chess_tb (test_move_piece) : Start move for Black pawn incorrect");
 		move_piece(1, 4, 1, 5, Black);
