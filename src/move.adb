@@ -3,7 +3,7 @@ with Chess; use Chess;
 package body Move is
     -- TODO: check for any missing element
     function get_player(c : in Cell) return Player is
---        with Pre => Cell'Pos(c) in white_range or Cell'Pos(c) in black_range;
+    -- with Pre => Cell'Pos(c) in white_range or Cell'Pos(c) in black_range;
     begin
         return (if Cell'Pos(c) in white_range then White else Black);
     end get_player;
@@ -112,7 +112,7 @@ package body Move is
 
     function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean is
     begin
---        Put_Line("x_start :" & Integer'Image(x_start) & ".");
+        -- Put_Line("x_start :" & Integer'Image(x_start) & ".");
         -- Out of Bounds check
         if get_piece_at(x_end, y_end, p) = forbidden then
             return False;
