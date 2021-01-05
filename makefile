@@ -1,6 +1,14 @@
 CC=gnatmake
-SRC=src/main.adb src/chess.adb
+SRC=src/chess.adb src/move.adb
 LIB=
 
-all:
-	${CC} ${LIB} ${SRC}
+all: main test
+
+main: ${SRC} src/main.adb
+	${CC} ${LIB} $^
+
+test: ${SRC} src/chess_tb.adb src/move_tb.adb src/test.adb
+	${CC} ${LIB} $^ 
+
+clean:
+	${RM} *.ali *.o main test
