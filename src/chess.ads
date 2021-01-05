@@ -15,8 +15,8 @@ package Chess is
     game_board : Board;
 
     procedure init_gameboard;
-    function get_piece_at(x : in Integer; y : in Integer) return Cell;
-    procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer);
+    function get_piece_at(x : in Integer; y : in Integer; p : in Player) return Cell;
+    procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player);
     procedure print_gameboard;
 private
 

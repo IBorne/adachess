@@ -14,8 +14,6 @@ procedure main is
     -- previous move
     prev    : String(1 .. 5) := "     ";
 
-
-
     function check_input return Boolean is
     begin
         Ada.Text_IO.Get_Line (Str, Last);
@@ -48,7 +46,7 @@ begin
             -- TODO: take care of cases where king is check
             -- TODO: transform a pawn into queen if pawn at last row
 
-            move_piece(x_start, y_start, x_end, y_end);
+            move_piece(x_start, y_start, x_end, y_end, side);
             print_gameboard;
 
             prev := Str(1 .. 5);
