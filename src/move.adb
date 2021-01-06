@@ -7,7 +7,13 @@ package body Move is
     function get_player(c : in Cell) return Player is
     -- with Pre => Cell'Pos(c) in white_range or Cell'Pos(c) in black_range;
     begin
-        return (if Cell'Pos(c) in white_range then White else Black);
+		if Cell'Pos(c) in white_range then
+			return White;
+		elsif Cell'Pos(c) in black_range then
+			return Black;
+		else
+			return Player_unknown;
+		end if;
     end get_player;
 
     function is_valid_pawn(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean is
@@ -127,7 +133,7 @@ package body Move is
 
         -- Check if end piece is ennemy (yes, you can't kill your allies)
         if get_piece_at(x_end, y_end, p) /= Empty
-			or get_player(get_piece_at(x_end, y_end, p)) = p then
+			and get_player(get_piece_at(x_end, y_end, p)) = p then
             return False;
         end if;
 

@@ -30,24 +30,27 @@ procedure main is
     end check_input;
 begin
     init_gameboard;
-    print_gameboard;
     Put_Line("Welcome to Adachess");
 
     while(True) loop -- is_game_end()
+	    print_gameboard(side);
+		Put_Line("");
+
         Put_Line((if side = White then "White" else "Black") & " to move:");
 
         -- TODO: take care of castling
 
         if check_input = False then
             Put_Line("Wrong input. Usage:E2 E4");
+			Put_Line("");
         elsif not is_valid_move(x_start, y_start, x_end, y_end, side, prev) then
             Put_Line("Input a valid move");
+			Put_Line("");
         else
             -- TODO: take care of cases where king is check
             -- TODO: transform a pawn into queen if pawn at last row
 
             move_piece(x_start, y_start, x_end, y_end, side);
-            print_gameboard;
 
             prev := Str(1 .. 5);
             side := (if side = White then Black else White);

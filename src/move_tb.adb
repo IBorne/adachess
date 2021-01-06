@@ -7,6 +7,9 @@ with Move; use Move;
 package body Move_tb is
     procedure test_get_player is
     begin
+		Assert(get_player(Empty) = Player_unknown, "Move_tb (test_get_player) : Empty incorrect");
+		Assert(get_player(Forbidden) = Player_unknown, "Move_tb (test_get_player) : Forbidden incorrect");
+
 		for w in white_range loop
 			Assert(get_player(Cell'Val(w)) = White, "Move_tb (test_get_player) : White range incorrect");
 		end loop;
