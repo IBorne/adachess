@@ -25,6 +25,7 @@ package body Move is
         L : constant Character := Character'Val(x_end + Character'Pos('A'));
 		dy : constant Integer := (if p = White then delta_y else -delta_y);
 		y0 : constant Integer := (if p = White then y_start else 9 - y_start);
+		y1 : constant Integer := (if p = White then x_start + 1 else x_start - 1);
     begin
         -- Normal move : straight 1
         if dy = 1 and delta_x = 0 and get_piece_at(x_end, y_end, p) = Empty then
@@ -32,7 +33,9 @@ package body Move is
         end if;
 
         -- Start move : straight 2
-        if dy = 2 and delta_x = 0 and y0 = 2 and get_piece_at(x_end, y_end, p) = Empty then
+        if dy = 2 and delta_x = 0 and y0 = 2
+			and get_piece_at(x_end, y_end, p) = Empty
+			and get_piece_at(x_start, y1, p) = Empty then
             return True;
         end if;
 
