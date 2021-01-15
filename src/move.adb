@@ -23,30 +23,32 @@ package body Move is
         end is_pawn;
 
         L : constant Character := Character'Val(x_end + Character'Pos('A'));
+		dy : constant Integer := (if p = White then delta_y else -delta_y);
+		y0 : constant Integer := (if p = White then y_start else 9 - y_start);
     begin
         -- Normal move : straight 1
-        --if delta_y = 1 and delta_x = 0 and get_piece_at(x_end, y_end, p) = Empty then
+        if dy = 1 and delta_x = 0 and get_piece_at(x_end, y_end, p) = Empty then
             return True;
-        --end if;
+        end if;
 
         -- Start move : straight 2
-        --if delta_y = 2 and delta_x = 0 and y_start = 2 and get_piece_at(x_end, y_end, p) = Empty then
-        --    return True;
-        --end if;
+        if dy = 2 and delta_x = 0 and y0 = 2 and get_piece_at(x_end, y_end, p) = Empty then
+            return True;
+        end if;
 
-        --if delta_y = 1 and abs delta_x = 1 then
+        if delta_y = 1 and abs delta_x = 1 then
             -- Capture piece : en passant
-        --    if get_piece_at(x_end, y_end, p) = Empty then
-        --        return y_start = 5
-        --            and is_pawn(get_piece_at(x_end, 5, p))
-        --           and prev = L & '2' & ' ' & L & '4';
+            if get_piece_at(x_end, y_end, p) = Empty then
+                return y0 = 5
+                    and is_pawn(get_piece_at(x_end, 5, p))
+                    and prev = L & '2' & ' ' & L & '4';
             -- Capture piece : diagonal 1
-        --    else
-        --        return True;
-        --    end if;
-        --end if;
+            else
+                return True;
+            end if;
+        end if;
 
-        --return False;
+        return False;
     end is_valid_pawn;
 
     function is_valid_rook(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player) return Boolean is
@@ -95,12 +97,13 @@ package body Move is
         dir_x : Integer;
         dir_y : Integer;
     begin
-        Put_Line("Bisjop");
         if abs delta_x /= abs delta_y then
             return False;
         end if;
+
         dir_x := delta_x / abs delta_x;
         dir_y := delta_y / abs delta_y;
+
         -- Check if the way is clear
         for i in 1 .. (abs delta_x) - 1 loop
             if get_piece_at(x_start + i * dir_x, y_start + i * dir_y, p) /= Empty then
@@ -139,7 +142,6 @@ package body Move is
 
     function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean is
     begin
-        -- Put_Line("x_start :" & Integer'Image(x_start) & ".");
         -- Out of Bounds check
         if get_piece_at(x_end, y_end, p) = forbidden then
             return False;
