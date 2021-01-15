@@ -6,5 +6,6 @@
 *.db*
 main
 test
+perft
 *xml
 obj/
