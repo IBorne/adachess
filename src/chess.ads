@@ -1,23 +1,63 @@
 with Ada.Text_IO; use Ada.Text_IO;
+
 package Chess is
-    size : constant := 12;
-    subtype game_size is Integer range 1 .. size;
-    type Cell is (Empty, Forbidden,
-                  Pawn_white, Rook_white, Knight_white, Bishop_white, Queen_white, King_white,
-                  Pawn_black, Rook_black, Knight_black, Bishop_black, Queen_black, King_black);
-    subtype white_range is Natural range 2 .. 7;
-    subtype black_range is Natural range 8 .. 13;
 
-    type Player is (White, Black, Player_unknown);
-    side    : Player := White;
+    type Player_Type is (Black,
+                         White,
+                         Unknown);
 
-    type Board is array (game_size,game_size) of Cell;
-    game_board : Board;
+    type Piece_Type is (Empty,
+                        Forbidden,
+                        Pawn,
+                        Rook,
+                        Knight,
+                        Bishop,
+                        Queen,
+                        King);
 
-    procedure init_gameboard;
-    function get_piece_at(x : in Integer; y : in Integer; p : in Player) return Cell;
-    procedure move_piece(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player);
-    procedure print_gameboard(side : in Player);
+    type Cell_Type is record
+        Piece           : Piece_Type := Forbidden;
+        Player          : Player_Type := Unknown;
+    end record;
+
+    type Range_Board is range -1 .. 10;
+	subtype Range_Inner_Board is Range_Board range 1 .. 8;
+
+    type Coordinate is record
+        X, Y : Range_Board := 1;
+    end record;
+
+    type Board_Type is array (Range_Board, Range_Board) of Cell_Type;
+
+    type Move_Type is record
+        Start, Target   : Coordinate;
+    end record;
+
+    -- type Move_List_Type is array (Buffer_Size) of Move_Type; --
+
+    Player              : Player_Type;
+    White_Castling_Q    : Boolean;
+    White_Castling_K    : Boolean;
+    Black_Castling_Q    : Boolean;
+    Black_Castling_K    : Boolean;
+    En_Passant_Target   : Coordinate;
+    -- Move_List           : Move_List_Type; --
+
+    procedure Read_Fen(Line : in String; Last : in Natural);
+    procedure Load_Fen(Filename : in String);
+    function Write_Fen return String;
+    procedure Save_Fen(Filename : in String);
+    procedure Move_Piece(Move : in Move_Type);
+    -- procedure Undo_Move; --
+    function Get_Piece_At(Position : in Coordinate) return Cell_Type;
+	procedure End_Turn;
+    procedure Print;
+
 private
+
+    Board               : Board_Type;
+    Halfmove            : Natural := 0;
+	Halfmove_Done		: Boolean := True;
+    Fullmove            : Natural := 1;
 
 end Chess;
