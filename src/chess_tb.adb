@@ -6,51 +6,49 @@ with Chess; use Chess;
 package body Chess_tb is
     procedure test_get_piece_at is
     begin
-		init_gameboard;
+	    Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
 
-		for x in 1 .. 8 loop
-			Assert(get_piece_at(x, 2, White) = Pawn_white, "Chess_tb (test_get_piece_at) : White pawn incorrect");
+		for X in Range_Inner_Board loop
+			Assert(get_piece_at((X, 2)) = (Pawn, White), "Chess_tb (test_get_piece_at) : White pawn incorrect");
 		end loop;
 
-		Assert(get_piece_at(1, 1, White) = Rook_white, "Chess_tb (test_get_piece_at) : White rook incorrect");
-        Assert(get_piece_at(2, 1, White) = Knight_white, "Chess_tb (test_get_piece_at) : White knight incorrect");
-        Assert(get_piece_at(3, 1, White) = Bishop_white, "Chess_tb (test_get_piece_at) : White bishop incorrect");
-        Assert(get_piece_at(4, 1, White) = Queen_white, "Chess_tb (test_get_piece_at) : White queen incorrect");
-        Assert(get_piece_at(5, 1, White) = King_white, "Chess_tb (test_get_piece_at) : White king incorrect");
-        Assert(get_piece_at(6, 1, White) = Bishop_white, "Chess_tb (test_get_piece_at) : White bishop incorrect");
-        Assert(get_piece_at(7, 1, White) = Knight_white, "Chess_tb (test_get_piece_at) : White knight incorrect");
-        Assert(get_piece_at(8, 1, White) = Rook_white, "Chess_tb (test_get_piece_at) : White rook incorrect");
+		Assert(get_piece_at((1, 1)) = (Rook, White), "Chess_tb (test_get_piece_at) : White rook incorrect");
+        Assert(get_piece_at((2, 1)) = (Knight, White), "Chess_tb (test_get_piece_at) : White knight incorrect");
+        Assert(get_piece_at((3, 1)) = (Bishop, White), "Chess_tb (test_get_piece_at) : White bishop incorrect");
+        Assert(get_piece_at((4, 1)) = (Queen, White), "Chess_tb (test_get_piece_at) : White queen incorrect");
+        Assert(get_piece_at((5, 1)) = (King, White), "Chess_tb (test_get_piece_at) : White king incorrect");
+        Assert(get_piece_at((6, 1)) = (Bishop, White), "Chess_tb (test_get_piece_at) : White bishop incorrect");
+        Assert(get_piece_at((7, 1)) = (Knight, White), "Chess_tb (test_get_piece_at) : White knight incorrect");
+        Assert(get_piece_at((8, 1)) = (Rook, White), "Chess_tb (test_get_piece_at) : White rook incorrect");
 		Put_Line("Chess_tb - test_get_piece_at (White pieces) : Success");
 
-		for x in 1 .. 8 loop
-			Assert(get_piece_at(x, 2, Black) = Pawn_black, "Chess_tb (test_get_piece_at) : Black pawn incorrect");
+		for X in Range_Inner_Board loop
+			Assert(get_piece_at((X, 2)) = (Pawn, Black), "Chess_tb (test_get_piece_at) : Black pawn incorrect");
 		end loop;
 
-		Assert(get_piece_at(1, 1, Black) = Rook_black, "Chess_tb (test_get_piece_at) : Black rook incorrect");
-        Assert(get_piece_at(2, 1, Black) = Knight_black, "Chess_tb (test_get_piece_at) : Black knight incorrect");
-        Assert(get_piece_at(3, 1, Black) = Bishop_black, "Chess_tb (test_get_piece_at) : Black bishop incorrect");
-        Assert(get_piece_at(4, 1, Black) = King_black, "Chess_tb (test_get_piece_at) : Black king incorrect");
-        Assert(get_piece_at(5, 1, Black) = Queen_black, "Chess_tb (test_get_piece_at) : Black queen incorrect");
-        Assert(get_piece_at(6, 1, Black) = Bishop_black, "Chess_tb (test_get_piece_at) : Black bishop incorrect");
-        Assert(get_piece_at(7, 1, Black) = Knight_black, "Chess_tb (test_get_piece_at) : Black knight incorrect");
-        Assert(get_piece_at(8, 1, Black) = Rook_black, "Chess_tb (test_get_piece_at) : Black rook incorrect");
+		Assert(get_piece_at((1, 1)) = (Rook, Black), "Chess_tb (test_get_piece_at) : Black rook incorrect");
+        Assert(get_piece_at((2, 1)) = (Knight, Black), "Chess_tb (test_get_piece_at) : Black knight incorrect");
+        Assert(get_piece_at((3, 1)) = (Bishop, Black), "Chess_tb (test_get_piece_at) : Black bishop incorrect");
+        Assert(get_piece_at((4, 1)) = (King, Black), "Chess_tb (test_get_piece_at) : Black king incorrect");
+        Assert(get_piece_at((5, 1)) = (Queen, Black), "Chess_tb (test_get_piece_at) : Black queen incorrect");
+        Assert(get_piece_at((6, 1)) = (Bishop, Black), "Chess_tb (test_get_piece_at) : Black bishop incorrect");
+        Assert(get_piece_at((7, 1)) = (Knight, Black), "Chess_tb (test_get_piece_at) : Black knight incorrect");
+        Assert(get_piece_at((8, 1)) = (Rook, Black), "Chess_tb (test_get_piece_at) : Black rook incorrect");
 		Put_Line("Chess_tb - test_get_piece_at (Black pieces) : Success");
     end test_get_piece_at;
 
     procedure test_move_piece is
     begin
-		init_gameboard;
-		move_piece(1, 2, 1, 4, White);
-		Assert(get_piece_at(1, 4, White) = Pawn_white, "Chess_tb (test_move_piece) : Start move for White pawn incorrect");
-		move_piece(1, 4, 1, 5, White);
-		Assert(get_piece_at(1, 5, White) = Pawn_white, "Chess_tb (test_move_piece) : Normal move for White pawn incorrect");
+		move_piece(((1, 2), (1, 4)));
+		Assert(Get_Piece_At((1, 4)) = (Pawn, White), "Chess_tb (test_move_piece) : Start move for White pawn incorrect");
+		Move_Piece(((1, 4), (1, 5)));
+		Assert(get_piece_at((1, 5)) = (Pawn, White), "Chess_tb (test_move_piece) : Normal move for White pawn incorrect");
 		Put_Line("Chess_tb - test_move_piece (White pieces) : Success");
 
-		init_gameboard;
-		move_piece(1, 2, 1, 4, Black);
-		Assert(get_piece_at(1, 4, Black) = Pawn_black, "Chess_tb (test_move_piece) : Start move for Black pawn incorrect");
-		move_piece(1, 4, 1, 5, Black);
-		Assert(get_piece_at(1, 5, Black) = Pawn_black, "Chess_tb (test_move_piece) : Normal move for Black pawn incorrect");
+		move_piece(((1, 2), (1, 4)));
+		Assert(get_piece_at((1, 4)) = (Pawn, Black), "Chess_tb (test_move_piece) : Start move for Black pawn incorrect");
+		move_piece(((1, 4), (1, 5)));
+		Assert(get_piece_at((1, 5)) = (Pawn, Black), "Chess_tb (test_move_piece) : Normal move for Black pawn incorrect");
 		Put_Line("Chess_tb - test_move_piece (Black pieces) : Success");
     end test_move_piece;
 
