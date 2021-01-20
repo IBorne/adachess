@@ -3,67 +3,51 @@ with Chess; use Chess;
 with Move; use Move;
 
 procedure main is
-    last_valid_move : Boolean := True;
     Str     : String (1 .. 80);
     Last    : Natural;
 
-    x_start : Integer;
-    y_start : Integer;
-    x_end   : Integer;
-    y_end   : Integer;
-
-    -- previous move
-    prev    : String(1 .. 5) := "     ";
+	Move : Move_Type;
 
     function check_input return Boolean is
     begin
         Ada.Text_IO.Get_Line (Str, Last);
-        if Str(1 .. Last)'Length /= 5 then
+
+        if Str(1 .. Last)'Length /= 4 then
             return False;
         end if;
-        x_start := Character'Pos(Str(1)) - Character'Pos('A') + 1;
-        y_start := Integer'Value(Str(2 .. 2));
-        x_end := Character'Pos(Str(4)) - Character'Pos('A') + 1;
-        y_end := Integer'Value(Str(5 .. 5));
+
+	    Move.Start.X := Character'Pos(Str(1)) - 96;
+        Move.Start.Y := Character'Pos(Str(2)) - 48;
+        Move.Target.X := Character'Pos(Str(3)) - 96;
+        Move.Target.Y := Character'Pos(Str(4)) - 48;
 
         return True;
     exception
-            when others => return False;
+        when others => return False;
     end check_input;
 begin
-    init_gameboard;
+    Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
     Put_Line("Welcome to Adachess");
 
     while(True) loop -- is_game_end()
-        if last_valid_move then
-            last_valid_move := True;
-	    print_gameboard(side);
-                Put_Line("");
-        end if;
-
-        Put_Line((if side = White then "White" else "Black") & " to move:");
+        Put_Line((if Player = White then "White" else "Black") & " to move:");
+	    Print;
 
         -- TODO: take care of castling
 
         if not check_input then
             if Str(1 .. 4) = "quit" then
-                Put_Line((if side = White then "Black" else "White") & " win ! exiting game.");
+                Put_Line((if Player = White then "Black" else "White") & " win ! exiting game.");
                 exit;
             end if;
-            Put("Wrong input, Usage:E2 E4. ");
-            last_valid_move := False;
-        elsif not is_valid_move(x_start, y_start, x_end, y_end, side, prev) then
-            Put("Input a valid move. ");
-            last_valid_move := False;
+            Put_Line("Wrong input, Usage: a2a4.");
+        elsif not is_valid_move(Move, Player) then
+            Put_Line("Input a valid move.");
         else
             -- TODO: take care of cases where king is check
             -- TODO: transform a pawn into queen if pawn at last row
-
-            move_piece(x_start, y_start, x_end, y_end, side);
-
-            prev := Str(1 .. 5);
-            side := (if side = White then Black else White);
-            last_valid_move := True;
+            move_piece(Move);
+			End_Turn;
         end if;
-      end loop;
+    end loop;
 end main;
