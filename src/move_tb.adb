@@ -5,30 +5,14 @@ with Chess; use Chess;
 with Move; use Move;
 
 package body Move_tb is
-    procedure test_get_player is
-    begin
-		Assert(get_player(Empty) = Player_unknown, "Move_tb (test_get_player) : Empty incorrect");
-		Assert(get_player(Forbidden) = Player_unknown, "Move_tb (test_get_player) : Forbidden incorrect");
-
-		for w in white_range loop
-			Assert(get_player(Cell'Val(w)) = White, "Move_tb (test_get_player) : White range incorrect");
-		end loop;
-		Put_Line("Move_tb - test_get_player (White range) : Success");
-
-		for b in black_range loop
-			Assert(get_player(Cell'Val(b)) = Black, "Move_tb (test_get_player) : Black range incorrect");
-		end loop;
-		Put_Line("Move_tb - test_get_player (Black range) : Success");
-    end test_get_player;
-
     procedure test_is_valid_pawn is
     begin
-		init_gameboard;
-		Assert(valid_piece_move(1, 2, 1, 3, White, ""), "Move_tb (test_is_valid_pawn) : Normal move (2 -> 3) incorrect");
+	    Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
+		Assert(valid_piece_move(((1, 2), (1, 3)), White), "Move_tb (test_is_valid_pawn) : Normal move (2 -> 3) incorrect");
 
-		Assert(valid_piece_move(1, 2, 1, 4, White, ""), "Move_tb (test_is_valid_pawn) : Start move (2 -> 4) incorrect");
-		move_piece(1, 2, 1, 4, White);
-		Assert(valid_piece_move(1, 4, 1, 5, White, ""), "Move_tb (test_is_valid_pawn) : Normal move (4 -> 5) incorrect");
+		Assert(valid_piece_move(((1, 2), (1, 4)), White), "Move_tb (test_is_valid_pawn) : Start move (2 -> 4) incorrect");
+		move_piece(((1, 2), (1, 4)));
+		Assert(valid_piece_move(((1, 4), (1, 5)), White), "Move_tb (test_is_valid_pawn) : Normal move (4 -> 5) incorrect");
     end test_is_valid_pawn;
 
     procedure test_is_valid_rook is
@@ -68,7 +52,6 @@ package body Move_tb is
 
 	procedure test_move_tb is
 	begin
-		test_get_player;
 		test_is_valid_pawn;
 		test_is_valid_rook;
 		test_is_valid_knight;
