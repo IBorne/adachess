@@ -3,48 +3,41 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Chess; use Chess;
 
 package body Move is
-    -- TODO: check for any missing element
-    function get_player(c : in Cell) return Player is
-    -- with Pre => Cell'Pos(c) in white_range or Cell'Pos(c) in black_range;
-    begin
-		if Cell'Pos(c) in white_range then
-			return White;
-		elsif Cell'Pos(c) in black_range then
-			return Black;
-		else
-			return Player_unknown;
-		end if;
-    end get_player;
 
-    function is_valid_pawn(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean is
-        function is_pawn(c : in Cell) return Boolean is
-        begin
-            return c = Rook_black or c = Rook_white;
-        end is_pawn;
+	function "+" (Left : Range_Board; Right : Integer) return Range_Board is
+		Left_Int : Integer := Integer(Left);
+	begin
+		return Range_Board(Left_Int + Right);
+	end "+";
 
-        L : constant Character := Character'Val(x_end + Character'Pos('A'));
-		dy : constant Integer := (if p = White then delta_y else -delta_y);
-		y0 : constant Integer := (if p = White then y_start else 9 - y_start);
-		y1 : constant Integer := (if p = White then x_start + 1 else x_start - 1);
+	function "-" (Left : Range_Board; Right : Integer) return Range_Board is
+		Left_Int : Integer := Integer(Left);
+	begin
+		return Range_Board(Left_Int - Right);
+	end "-";
+
+    function is_valid_pawn(dx : In Integer; dy : In Integer; Move : In Move_Type; p : In Player_Type) return Boolean is
+		dy_rel : constant Integer := (if p = White then dy else -dy);
+		y0_rel : constant Range_Inner_Board := (if p = White then Move.Start.Y else 9 - Move.Start.Y);
+		y01 : constant Range_Inner_Board := Range_Inner_Board(if p = White then Integer(Move.Start.Y) + 1 else Integer(Move.Start.Y) - 1);
     begin
         -- Normal move : straight 1
-        if dy = 1 and delta_x = 0 and get_piece_at(x_end, y_end, p) = Empty then
+        if dy_rel = 1 and dx = 0 and Get_Piece_At(Move.Target).Piece = Empty then
             return True;
         end if;
 
         -- Start move : straight 2
-        if dy = 2 and delta_x = 0 and y0 = 2
-			and get_piece_at(x_end, y_end, p) = Empty
-			and get_piece_at(x_start, y1, p) = Empty then
+        if dy_rel = 2 and dx = 0 and y0_rel = 2
+			and Get_Piece_At(Move.Target).Piece = Empty
+			and Get_Piece_At((Move.Target.X, y01)).Piece = Empty then
             return True;
         end if;
 
-        if delta_y = 1 and abs delta_x = 1 then
+        if dy_rel = 1 and abs dx = 1 then
             -- Capture piece : en passant
-            if get_piece_at(x_end, y_end, p) = Empty then
-                return y0 = 5
-                    and is_pawn(get_piece_at(x_end, 5, p))
-                    and prev = L & '2' & ' ' & L & '4';
+            if Get_Piece_At(Move.Target).Piece = Empty then
+				-- FIXME: verify if En_Passant_Target is Invalid if there is no En_Passant
+                return En_Passant_Target = Move.Target;
             -- Capture piece : diagonal 1
             else
                 return True;
@@ -54,35 +47,20 @@ package body Move is
         return False;
     end is_valid_pawn;
 
-    function is_valid_rook(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player) return Boolean is
-        delta_x : constant Integer := (x_end - x_start);
-        delta_y : constant Integer := (y_end - y_start);
-        x_increment : constant Integer := (if delta_x = 0 then 0 elsif x_start < x_end then 1 else -1);
-        y_increment : constant Integer := (if delta_y = 0 then 0 elsif y_start < y_end then 1 else -1);
-        x_start_cpy : Integer := x_start;
-        y_start_cpy : Integer := y_start;
+    function is_valid_rook(Move : In Move_Type) return Boolean is
+        dx : constant Integer := Integer(Move.Target.X) - Integer(Move.Start.X);
+        dy : constant Integer := Integer(Move.Target.Y) - Integer(Move.Start.Y);
+        X_Increment : constant Integer := (if dx = 0 then 0 elsif Move.Start.X < Move.Target.X then 1 else -1);
+        Y_Increment : constant Integer := (if dy = 0 then 0 elsif Move.Start.Y < Move.Target.Y then 1 else -1);
+        Start : Coordinate := Move.Start;
     begin
         -- Check if the way is clear
-        if delta_x /= 0 and delta_y /= 0 then
+        if dx /= 0 and dy /= 0 then
             return False;
         end if;
-        -- FIXME: check if there is piece in the way
-        --for y in y_start .. y_start + delta_y loop
-        --    for x in x_start .. x_start + delta_x loop
-        --        if get_piece_at(x, y, p) /= Empty then
-        --            return False;
-        --        end if;
-        --    end loop;
-        --end loop
-
-        Put_Line("x_start_cpy: " & Integer'Image(x_start_cpy) & ", y_start_cpy: " & Integer'Image(y_start_cpy));
-        Put_Line("x_end: " & Integer'Image(x_end) & ", y_end: " & Integer'Image(y_end));
-        Put_Line("x_increment: " & Integer'Image(x_increment) & ", y_increment: " & Integer'Image(y_increment));
-        while x_start_cpy /= x_end or y_start_cpy /= y_end  loop
-            x_start_cpy := x_start_cpy + x_increment;
-            y_start_cpy := y_start_cpy + y_increment;
-            Put_Line("x_start_cpy: " & Integer'Image(x_start_cpy) & ", y_start_cpy: " & Integer'Image(y_start_cpy));
-            if get_piece_at(x_start_cpy, y_start_cpy, p) /= Empty then
+        while Start /= (Move.Target.X - X_Increment, Move.Target.Y - Y_Increment) loop
+			Start := (Start.X + X_Increment, Start.Y + Y_Increment);
+            if Get_Piece_At(Start).Piece /= Empty then
                 return False;
             end if;
         end loop;
@@ -90,26 +68,23 @@ package body Move is
         return True;
     end is_valid_rook;
 
-    function is_valid_knight(delta_x : in Integer; delta_y : in Integer) return Boolean is
+    function is_valid_knight(dx : In Integer; dy : In Integer) return Boolean is
     begin
-        return (abs delta_x = 1 and abs delta_y = 2)
-            or (abs delta_x = 2 and abs delta_y = 1);
+        return (abs dx = 1 and abs dy = 2)
+            or (abs dx = 2 and abs dy = 1);
     end is_valid_knight;
 
-    function is_valid_bishop(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer; p : in Player) return Boolean is
-        dir_x : Integer;
-        dir_y : Integer;
+    function is_valid_bishop(dx : In Integer; dy : In Integer; Start : In Coordinate) return Boolean is
+        dir_x : Integer :=  (if dx < 0 then -1 else 1);
+        dir_y : Integer := (if dy < 0 then -1 else 1);
     begin
-        if abs delta_x /= abs delta_y then
+        if abs dx /= abs dy then
             return False;
         end if;
 
-        dir_x := delta_x / abs delta_x;
-        dir_y := delta_y / abs delta_y;
-
         -- Check if the way is clear
-        for i in 1 .. (abs delta_x) - 1 loop
-            if get_piece_at(x_start + i * dir_x, y_start + i * dir_y, p) /= Empty then
+        for i In Integer range 1 .. (abs dx) - 1 loop
+            if Get_Piece_At((Start.X + i * dir_x, Start.Y + i * dir_y)).Piece /= Empty then
                 return False;
             end if;
         end loop;
@@ -117,50 +92,49 @@ package body Move is
         return True;
     end is_valid_bishop;
 
-    function is_valid_queen(delta_x : in Integer; delta_y : in Integer; x_start : in Integer; y_start : in Integer; p : in Player) return Boolean is
+    function is_valid_queen(dx : In Integer; dy : In Integer; Move : In Move_Type) return Boolean is
     begin
-        return is_valid_rook(delta_x, delta_y, x_start, y_start, p)
-            or is_valid_bishop(delta_x, delta_y, x_start, y_start, p);
+        return is_valid_rook(Move)
+            or is_valid_bishop(dx, dy, Move.Start);
     end is_valid_queen;
 
-    function is_valid_king(delta_x : in Integer; delta_y : in Integer) return Boolean is
+    function is_valid_king(dx : In Integer; dy : In Integer) return Boolean is
     begin
-        return abs delta_x = 1 or abs delta_y = 1;
-    end is_valid_king;
+        return abs dx = 1 or abs dy = 1;
+    end is_valid_kIng;
 
-    function valid_piece_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean is
-        delta_x : constant Integer := (x_end - x_start);
-        delta_y : constant Integer := (y_end - y_start);
+    function valid_piece_move(Move : In Move_Type; p : In Player_Type) return Boolean is
+        dx : constant Integer := Integer(Move.Target.X) - Integer(Move.Start.X);
+        dy : constant Integer := Integer(Move.Target.Y) - Integer(Move.Start.Y);
     begin
-        case get_piece_at(x_start, y_start, p) is
-            when Pawn_white     | Pawn_black    => return is_valid_pawn(delta_x, delta_y, x_start, y_start, x_end, y_end, p, prev);
-            when Rook_white     | Rook_black    => return is_valid_rook(x_start, y_start, x_end, y_end, p);
-            when Knight_white   | Knight_black  => return is_valid_knight(delta_x, delta_y);
-            when Bishop_white   | Bishop_black  => return is_valid_bishop(delta_x, delta_y, x_start, y_start, p);
-            when Queen_white    | Queen_black   => return is_valid_queen(delta_x, delta_y, x_start, y_start, p);
-            when King_white     | King_black    => return is_valid_king(delta_x, delta_y);
-            when Empty          | Forbidden     => return False;
+        case Get_Piece_At(Move.Start).Piece is
+            when Pawn    => return is_valid_pawn(dx, dy, Move, p);
+            when Rook    => return is_valid_rook(Move);
+            when Knight  => return is_valid_knight(dx, dy);
+            when Bishop  => return is_valid_bishop(dx, dy, Move.Start);
+            when Queen   => return is_valid_queen(dx, dy, Move);
+            when KIng    => return is_valid_king(dx, dy);
+            when Empty  | Forbidden => return False;
         end case;
     end valid_piece_move;
 
-    function is_valid_move(x_start : in Integer; y_start : in Integer; x_end : in Integer; y_end : in Integer; p : in Player; prev : in String) return Boolean is
+    function is_valid_move(Move : In Move_Type; p : In Player_Type) return Boolean is
     begin
         -- Out of Bounds check
-        if get_piece_at(x_end, y_end, p) = forbidden then
+        if Get_Piece_At(Move.Target).Piece = Forbidden then
             return False;
         end if;
 
         -- Check if start piece is valid
-        if get_player(get_piece_at(x_start, y_start, p)) /= p then
+        if Get_Piece_At(Move.Start).Player /= p then
             return False;
         end if;
 
         -- Check if end piece is ennemy (yes, you can't kill your allies)
-        if get_piece_at(x_end, y_end, p) /= Empty
-			and get_player(get_piece_at(x_end, y_end, p)) = p then
+        if Get_Piece_At(Move.Target).Player = p then
             return False;
         end if;
 
-        return valid_piece_move(x_start, y_start, x_end, y_end, p, prev);
+        return valid_piece_move(Move, p);
     end is_valid_move;
 end Move;
