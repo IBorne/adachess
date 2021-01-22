@@ -130,6 +130,16 @@ package body Move is
             return False;
         end if;
 
+        -- Check if end piece is ennemy (yes, you can't kill your allies)
+        if Get_Piece_At(Move.Target).Player = Player then
+            return False;
+        end if;
+
+		-- Check if piece actually move
+		if Move.Start = Move.Target then
+			return False;
+		end if;
+
         if Is_Enemy_Check then
             -- Check if king move when he's in check
             if Get_Piece_At(Move.Start).Piece /= King then
@@ -137,28 +147,20 @@ package body Move is
             end if;
 
             declare
-                Piece_Start : Cell_Type := Get_Piece_At(Move.Start);
-                Piece_Target : Cell_Type := Get_Piece_At(Move.Target);
+				Is_Own_Check : Boolean;
+				Board : Board_Save := Save_Board;
             begin
                 -- Make the move
-                Set_Piece_At(Move.Start, (Empty, Unknown));
-                Set_Piece_At(Move.Target, Piece_Start);
-				Check_Promote_Pawn(Move.Target);
+				Move_Piece(Move);
                 -- Check if king is still check
-                Is_Enemy_Check := Is_Check(Player);
+				Is_Own_Check := Is_Check(Player);
                 -- Revert the board
-                Set_Piece_At(Move.Start, Piece_Start);
-                Set_Piece_At(Move.Target, Piece_Target);
-            end;
+				Revert_Board(Board);
 
-            if Is_Enemy_Check then
-                return False;
+	            if Is_Own_Check then
+    	            return False;
             end if;
-        end if;
-
-        -- Check if end piece is ennemy (yes, you can't kill your allies)
-        if Get_Piece_At(Move.Target).Player = Player then
-            return False;
+            end;
         end if;
 
         return valid_piece_move(Move, Player);
