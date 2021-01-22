@@ -143,6 +143,7 @@ package body Move is
                 -- Make the move
                 Set_Piece_At(Move.Start, (Empty, Unknown));
                 Set_Piece_At(Move.Target, Piece_Start);
+				Check_Promote_Pawn(Move.Target);
                 -- Check if king is still check
                 Is_Enemy_Check := Is_Check(Player);
                 -- Revert the board
