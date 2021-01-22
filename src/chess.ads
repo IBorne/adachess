@@ -40,6 +40,7 @@ package Chess is
     White_Castling_K    : Boolean;
     Black_Castling_Q    : Boolean;
     Black_Castling_K    : Boolean;
+	Is_Enemy_Check      : Boolean;
     En_Passant_Target   : Coordinate;
     -- Move_List           : Move_List_Type; --
 
