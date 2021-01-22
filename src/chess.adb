@@ -263,7 +263,7 @@ package body Chess is
             Chess.Fullmove := Integer'Value(Line(Index .. Last));
         end if;
 
-        Chess.Is_Enemy_Check := Is_Check(Get_Enemy(Chess.Player), Chess.Player);
+        Chess.Is_Enemy_Check := Is_Check(Chess.Player, Get_Enemy(Chess.Player));
     end Read_Fen;
 
     procedure Load_Fen(Filename : in String) is
@@ -415,9 +415,9 @@ package body Chess is
             Fullmove := Fullmove + 1;
         end if;
 
-        Is_Enemy_Check := Is_Check(Player, Get_Enemy(Player));
-
         Player := Get_Enemy(Player);
+
+        Is_Enemy_Check := Is_Check(Player, Get_Enemy(Player));
     end End_Turn;
 
     procedure Print is
