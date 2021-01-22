@@ -2,7 +2,7 @@ CC=gnatmake
 SRC=src/chess.adb src/move.adb
 LIB=
 
-all: main test #perft
+all: main test game_test #perft
 
 main: ${SRC} src/main.adb
 	${CC} ${LIB} $^
