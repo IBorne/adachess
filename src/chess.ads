@@ -33,6 +33,20 @@ package Chess is
         Start, Target   : Coordinate;
     end record;
 
+	type Board_Save is record
+		Player              : Player_Type;
+	    White_Castling_Q    : Boolean;
+    	White_Castling_K    : Boolean;
+    	Black_Castling_Q    : Boolean;
+    	Black_Castling_K    : Boolean;
+    	Is_Enemy_Check      : Boolean;
+    	En_Passant_Target   : Coordinate;
+		Board               : Board_Type;
+	    Halfmove            : Natural;
+    	Halfmove_Done       : Boolean;
+    	Fullmove            : Natural;
+	end record;
+
     -- type Move_List_Type is array (Buffer_Size) of Move_Type; --
 
     Player              : Player_Type;
@@ -53,8 +67,9 @@ package Chess is
     -- procedure Undo_Move; --
     function Is_Check(Player : in Player_Type) return Boolean;
     function Get_Piece_At(Position : in Coordinate) return Cell_Type;
-	procedure Set_Piece_At(Pos : in Coordinate; Cell : in Cell_Type);
-    procedure End_Turn;
+	function Save_Board return Board_Save;
+	procedure Revert_Board(Save : Board_Save);
+    function End_Turn return Boolean;
     procedure Print;
 
 private

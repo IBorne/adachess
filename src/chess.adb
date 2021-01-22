@@ -1,14 +1,11 @@
+with Move; use Move;
+
 package body Chess is
 
     function Get_Piece_At(Position : in Coordinate) return Cell_Type is
     begin
         return Chess.Board(Position.X, Position.Y);
     end Get_Piece_At;
-
-	procedure Set_Piece_At(Pos : in Coordinate; Cell : in Cell_Type) is
-	begin
-		Chess.Board(Pos.X, Pos.Y) := Cell;
-	end Set_Piece_At;
 
     function Is_Player_At(Pos : in Coordinate; Player : in Player_Type) return Boolean is
     begin
@@ -440,7 +437,37 @@ package body Chess is
     -- begin --
     -- end Undo_Move; --
 
-    procedure End_Turn is
+	function Save_Board return Board_Save is
+	begin
+		return (Player,
+	    		White_Castling_Q,
+				White_Castling_K,
+				Black_Castling_Q,
+				Black_Castling_K,
+				Is_Enemy_Check,
+				En_Passant_Target,
+				Board,
+				Halfmove,
+				Halfmove_Done,
+				Fullmove);
+	end Save_Board;
+
+	procedure Revert_Board(Save : Board_Save) is
+	begin
+		Chess.Player              := Save.Player;
+	    Chess.White_Castling_Q    := Save.White_Castling_Q;
+    	Chess.White_Castling_K    := Save.White_Castling_K;
+    	Chess.Black_Castling_Q    := Save.Black_Castling_Q;
+    	Chess.Black_Castling_K    := Save.Black_Castling_K;
+    	Chess.Is_Enemy_Check      := Save.Is_Enemy_Check;
+    	Chess.En_Passant_Target   := Save.En_Passant_Target;
+		Chess.Board               := Save.Board;
+	    Chess.Halfmove            := Save.Halfmove;
+    	Chess.Halfmove_Done       := Save.Halfmove_Done;
+    	Chess.Fullmove            := Save.Fullmove;
+	end Revert_Board;
+
+    function End_Turn return Boolean is
     begin
         Halfmove := (if Halfmove_Done then Halfmove + 1 else 0);
         Halfmove_Done := True;
@@ -453,8 +480,48 @@ package body Chess is
 
         Is_Enemy_Check := Is_Check(Player);
 		if Is_Enemy_Check then
-			-- TODO: check for checkmates
+			declare
+				Is_Not_Check : Boolean := False;
+				Save : Board_Save;
+				King_Move : Move_Type;
+			begin
+				for Y in Range_Inner_Board loop
+					for X in Range_Inner_Board loop
+						if Get_Piece_At((X, Y)) = (King, Player) then
+							King_Move.Start := (X, Y);
+						end if;
+					end loop;
+				end loop;
+
+				for Y in Integer range -1 .. 1 loop
+					for X in Integer range -1 .. 1 loop
+						-- Save board
+						Save := Save_Board;
+
+						-- Move
+						King_Move.Target := (Range_Inner_Board(Integer(King_Move.Start.X) + X),
+											 Range_Inner_Board(Integer(King_Move.Start.Y) + Y));
+						if not is_valid_move(King_Move, Player) then
+							exit;
+						end if;
+
+						Move_Piece(King_Move);
+						Is_Not_Check := not Is_Check(Player);
+
+						-- Revert move
+						Revert_Board(Save);
+
+						if Is_Not_Check then
+							return False;
+						end if;
+					end loop;
+				end loop;
+
+				return True;
+			end;
 		end if;
+
+		return False;
     end End_Turn;
 
     procedure Print is
