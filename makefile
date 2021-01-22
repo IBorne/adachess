@@ -2,7 +2,9 @@ CC=gnatmake
 SRC=src/chess.adb src/move.adb
 LIB=
 
-all: main test game_test #perft
+BIN = main test game_test #perft
+
+all: ${BIN}
 
 main: ${SRC} src/main.adb
 	${CC} ${LIB} $^
@@ -17,4 +19,4 @@ game_test: ${SRC} src/test_game.adb
 	${CC} ${LIB} $^
 
 clean:
-	${RM} *.ali *.o main test
+	${RM} *.ali *.o ${BIN}
