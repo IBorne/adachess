@@ -5,34 +5,39 @@ package body Chess is
         return Chess.Board(Position.X, Position.Y);
     end Get_Piece_At;
 
-    function Is_Player_At(Pos : In Coordinate; Player : In Player_Type) return Boolean is
+	procedure Set_Piece_At(Pos : in Coordinate; Cell : in Cell_Type) is
+	begin
+		Chess.Board(Pos.X, Pos.Y) := Cell;
+	end Set_Piece_At;
+
+    function Is_Player_At(Pos : in Coordinate; Player : in Player_Type) return Boolean is
     begin
         return Get_Piece_At(Pos).Player = Player;
     end Is_Player_At;
 
-    function Is_Cell_At(Pos : In Coordinate; Piece : In Piece_Type) return Boolean is
+    function Is_Cell_At(Pos : in Coordinate; Piece : in Piece_Type) return Boolean is
     begin
         return Get_Piece_At(Pos).Piece = Piece;
     end Is_Cell_At;
 
-    function Is_Empty_Cell(Pos : In Coordinate) return Boolean is
+    function Is_Empty_Cell(Pos : in Coordinate) return Boolean is
     begin
         return Get_Piece_At(Pos).Piece = Empty;
     end Is_Empty_Cell;
 
-    function Get_Enemy(Player : In Player_Type) return Player_Type is
+    function Get_Enemy(Player : in Player_Type) return Player_Type is
     begin
         return (if Player = White then Black else White);
     end Get_Enemy;
 
     -- TODO: factorize (if possible)
-    function Is_King_Check(Pos : In Coordinate; Enemy : In Player_Type) return Boolean is
-        function Is_Enemy_Queen_Rook(Pos : In Coordinate; Enemy : In Player_Type) return Boolean is
+    function Is_King_Check(Pos : in Coordinate; Enemy : in Player_Type) return Boolean is
+        function Is_Enemy_Queen_Rook(Pos : in Coordinate; Enemy : in Player_Type) return Boolean is
         begin
             return Is_Player_At(Pos, Enemy) and (Is_Cell_At(Pos, Queen) or Is_Cell_At(Pos, Rook));
         end Is_Enemy_Queen_Rook;
 
-        function Is_Enemy_Queen_Bishop(Pos : In Coordinate; Enemy : In Player_Type) return Boolean is
+        function Is_Enemy_Queen_Bishop(Pos : in Coordinate; Enemy : in Player_Type) return Boolean is
         begin
             return Is_Player_At(Pos, Enemy) and (Is_Cell_At(Pos, Queen) or Is_Cell_At(Pos, Bishop));
         end Is_Enemy_Queen_Bishop;
@@ -123,12 +128,12 @@ package body Chess is
         return False;
     end Is_King_Check;
 
-    function Is_Check(Player : In Player_Type; Enemy : In Player_Type) return Boolean is
+    function Is_Check(Player : in Player_Type) return Boolean is
     begin
         for Y in Range_Inner_Board loop
             for X in Range_Inner_Board loop
                 if Get_Piece_At((X, Y)) = (King, Player) then
-                    return Is_King_Check((X, Y), Enemy);
+                    return Is_King_Check((X, Y), Get_Enemy(Player));
                 end if;
             end loop;
         end loop;
@@ -263,7 +268,7 @@ package body Chess is
             Chess.Fullmove := Integer'Value(Line(Index .. Last));
         end if;
 
-        Chess.Is_Enemy_Check := Is_Check(Chess.Player, Get_Enemy(Chess.Player));
+        Chess.Is_Enemy_Check := Is_Check(Chess.Player);
     end Read_Fen;
 
     procedure Load_Fen(Filename : in String) is
@@ -417,7 +422,7 @@ package body Chess is
 
         Player := Get_Enemy(Player);
 
-        Is_Enemy_Check := Is_Check(Player, Get_Enemy(Player));
+        Is_Enemy_Check := Is_Check(Player);
     end End_Turn;
 
     procedure Print is

@@ -50,7 +50,9 @@ package Chess is
     procedure Save_Fen(Filename : in String);
     procedure Move_Piece(Move : in Move_Type);
     -- procedure Undo_Move; --
+    function Is_Check(Player : in Player_Type) return Boolean;
     function Get_Piece_At(Position : in Coordinate) return Cell_Type;
+	procedure Set_Piece_At(Pos : in Coordinate; Cell : in Cell_Type);
     procedure End_Turn;
     procedure Print;
 
