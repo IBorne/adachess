@@ -2,141 +2,141 @@ package body Chess is
 
     function Get_Piece_At(Position : in Coordinate) return Cell_Type is
     begin
-		return Chess.Board(Position.X, Position.Y);
+        return Chess.Board(Position.X, Position.Y);
     end Get_Piece_At;
 
-	function Is_Player_At(Pos : In Coordinate; Player : In Player_Type) return Boolean is
-	begin
-		return Get_Piece_At(Pos).Player = Player;
-	end Is_Player_At;
+    function Is_Player_At(Pos : In Coordinate; Player : In Player_Type) return Boolean is
+    begin
+        return Get_Piece_At(Pos).Player = Player;
+    end Is_Player_At;
 
-	function Is_Cell_At(Pos : In Coordinate; Piece : In Piece_Type) return Boolean is
-	begin
-		return Get_Piece_At(Pos).Piece = Piece;
-	end Is_Cell_At;
+    function Is_Cell_At(Pos : In Coordinate; Piece : In Piece_Type) return Boolean is
+    begin
+        return Get_Piece_At(Pos).Piece = Piece;
+    end Is_Cell_At;
 
-	function Is_Empty_Cell(Pos : In Coordinate) return Boolean is
-	begin
-		return Get_Piece_At(Pos).Piece = Empty;
-	end Is_Empty_Cell;
+    function Is_Empty_Cell(Pos : In Coordinate) return Boolean is
+    begin
+        return Get_Piece_At(Pos).Piece = Empty;
+    end Is_Empty_Cell;
 
-	function Get_Enemy(Player : In Player_Type) return Player_Type is
-	begin
-		return (if Player = White then Black else White);
-	end Get_Enemy;
+    function Get_Enemy(Player : In Player_Type) return Player_Type is
+    begin
+        return (if Player = White then Black else White);
+    end Get_Enemy;
 
-	-- TODO: factorize (if possible)
-	function Is_King_Check(Pos : In Coordinate; Enemy : In Player_Type) return Boolean is
-		function Is_Enemy_Queen_Rook(Pos : In Coordinate; Enemy : In Player_Type) return Boolean is
-		begin
-			return Is_Player_At(Pos, Enemy) and (Is_Cell_At(Pos, Queen) or Is_Cell_At(Pos, Rook));
-		end Is_Enemy_Queen_Rook;
+    -- TODO: factorize (if possible)
+    function Is_King_Check(Pos : In Coordinate; Enemy : In Player_Type) return Boolean is
+        function Is_Enemy_Queen_Rook(Pos : In Coordinate; Enemy : In Player_Type) return Boolean is
+        begin
+            return Is_Player_At(Pos, Enemy) and (Is_Cell_At(Pos, Queen) or Is_Cell_At(Pos, Rook));
+        end Is_Enemy_Queen_Rook;
 
-		function Is_Enemy_Queen_Bishop(Pos : In Coordinate; Enemy : In Player_Type) return Boolean is
-		begin
-			return Is_Player_At(Pos, Enemy) and (Is_Cell_At(Pos, Queen) or Is_Cell_At(Pos, Bishop));
-		end Is_Enemy_Queen_Bishop;
+        function Is_Enemy_Queen_Bishop(Pos : In Coordinate; Enemy : In Player_Type) return Boolean is
+        begin
+            return Is_Player_At(Pos, Enemy) and (Is_Cell_At(Pos, Queen) or Is_Cell_At(Pos, Bishop));
+        end Is_Enemy_Queen_Bishop;
 
-		Pawn_Y : Range_Board := (if Enemy = White then Pos.Y + 1 else Pos.Y - 1);
-	begin
-		-- Queen, Rook
-		-- Vertical lower part
-		if Pos.Y > Range_Inner_Board'First then
-			for Y in Range_Inner_Board'First .. Pos.Y - 1 loop
-				if Is_Enemy_Queen_Rook((Pos.X, Y), Enemy) then
-					return True;
-				end if;
+        Pawn_Y : Range_Board := (if Enemy = White then Pos.Y + 1 else Pos.Y - 1);
+    begin
+        -- Queen, Rook
+        -- Vertical lower part
+        if Pos.Y > Range_Inner_Board'First then
+            for Y in Range_Inner_Board'First .. Pos.Y - 1 loop
+                if Is_Enemy_Queen_Rook((Pos.X, Y), Enemy) then
+                    return True;
+                end if;
 
-				exit when not Is_Empty_Cell((Pos.X, Y));
-			end loop;
-		end if;
+                exit when not Is_Empty_Cell((Pos.X, Y));
+            end loop;
+        end if;
 
-		-- Vertical upper part
-		if Pos.Y < Range_Inner_Board'Last then
-			for Y in Pos.Y + 1 .. Range_Inner_Board'Last loop
-				if Is_Enemy_Queen_Rook((Pos.X, Y), Enemy) then
-					return True;
-				end if;
+        -- Vertical upper part
+        if Pos.Y < Range_Inner_Board'Last then
+            for Y in Pos.Y + 1 .. Range_Inner_Board'Last loop
+                if Is_Enemy_Queen_Rook((Pos.X, Y), Enemy) then
+                    return True;
+                end if;
 
-				exit when not Is_Empty_Cell((Pos.X, Y));
-			end loop;
-		end if;
+                exit when not Is_Empty_Cell((Pos.X, Y));
+            end loop;
+        end if;
 
-		-- Horizontal left part
-		if Pos.X > Range_Inner_Board'First then
-			for X in Range_Inner_Board'First .. Pos.X - 1 loop
-				if Is_Enemy_Queen_Rook((X, Pos.Y), Enemy) then
-					return True;
-				end if;
+        -- Horizontal left part
+        if Pos.X > Range_Inner_Board'First then
+            for X in Range_Inner_Board'First .. Pos.X - 1 loop
+                if Is_Enemy_Queen_Rook((X, Pos.Y), Enemy) then
+                    return True;
+                end if;
 
-				exit when not Is_Empty_Cell((X, Pos.Y));
-			end loop;
-		end if;
+                exit when not Is_Empty_Cell((X, Pos.Y));
+            end loop;
+        end if;
 
-		-- Vertical upper part
-		if Pos.X < Range_Inner_Board'Last then
-			for X in Pos.X + 1 .. Range_Inner_Board'Last loop
-				if Is_Enemy_Queen_Rook((X, Pos.Y), Enemy) then
-					return True;
-				end if;
+        -- Vertical upper part
+        if Pos.X < Range_Inner_Board'Last then
+            for X in Pos.X + 1 .. Range_Inner_Board'Last loop
+                if Is_Enemy_Queen_Rook((X, Pos.Y), Enemy) then
+                    return True;
+                end if;
 
-				exit when not Is_Empty_Cell((X, Pos.Y));
-			end loop;
-		end if;
+                exit when not Is_Empty_Cell((X, Pos.Y));
+            end loop;
+        end if;
 
-		-- TODO: Queen, Bishop
-		-- Diagonal upper left
-		-- Diagonal upper right
-		-- Diagonal lower left
-		-- Diagonal lower right
+        -- TODO: Queen, Bishop
+        -- Diagonal upper left
+        -- Diagonal upper right
+        -- Diagonal lower left
+        -- Diagonal lower right
 
-		-- Knight
-		if     Get_Piece_At((Pos.X - 1, Pos.Y - 3)) = (Knight, Enemy)
-		    or Get_Piece_At((Pos.X - 1, Pos.Y + 3)) = (Knight, Enemy)
-		    or Get_Piece_At((Pos.X + 1, Pos.Y - 3)) = (Knight, Enemy)
-		    or Get_Piece_At((Pos.X + 1, Pos.Y + 3)) = (Knight, Enemy)
-		    or Get_Piece_At((Pos.X - 3, Pos.Y - 1)) = (Knight, Enemy)
-		    or Get_Piece_At((Pos.X - 3, Pos.Y + 1)) = (Knight, Enemy)
-		    or Get_Piece_At((Pos.X + 3, Pos.Y - 1)) = (Knight, Enemy)
-		    or Get_Piece_At((Pos.X + 3, Pos.Y + 1)) = (Knight, Enemy) then
-			return True;
-		end if;
+        -- Knight
+        if     Get_Piece_At((Pos.X - 1, Pos.Y - 3)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X - 1, Pos.Y + 3)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X + 1, Pos.Y - 3)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X + 1, Pos.Y + 3)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X - 3, Pos.Y - 1)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X - 3, Pos.Y + 1)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X + 3, Pos.Y - 1)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X + 3, Pos.Y + 1)) = (Knight, Enemy) then
+            return True;
+        end if;
 
-		-- King
-		if     Get_Piece_At((Pos.X - 1, Pos.Y - 1)) = (King, Enemy)
-		    or Get_Piece_At((Pos.X - 1, Pos.Y + 0)) = (King, Enemy)
-		    or Get_Piece_At((Pos.X + 1, Pos.Y + 1)) = (King, Enemy)
-		    or Get_Piece_At((Pos.X + 0, Pos.Y - 1)) = (King, Enemy)
-		    or Get_Piece_At((Pos.X + 0, Pos.Y + 1)) = (King, Enemy)
-		    or Get_Piece_At((Pos.X + 1, Pos.Y - 1)) = (King, Enemy)
-		    or Get_Piece_At((Pos.X + 1, Pos.Y + 0)) = (King, Enemy)
-		    or Get_Piece_At((Pos.X + 1, Pos.Y + 1)) = (King, Enemy) then
-			return True;
-		end if; 
+        -- King
+        if     Get_Piece_At((Pos.X - 1, Pos.Y - 1)) = (King, Enemy)
+            or Get_Piece_At((Pos.X - 1, Pos.Y + 0)) = (King, Enemy)
+            or Get_Piece_At((Pos.X + 1, Pos.Y + 1)) = (King, Enemy)
+            or Get_Piece_At((Pos.X + 0, Pos.Y - 1)) = (King, Enemy)
+            or Get_Piece_At((Pos.X + 0, Pos.Y + 1)) = (King, Enemy)
+            or Get_Piece_At((Pos.X + 1, Pos.Y - 1)) = (King, Enemy)
+            or Get_Piece_At((Pos.X + 1, Pos.Y + 0)) = (King, Enemy)
+            or Get_Piece_At((Pos.X + 1, Pos.Y + 1)) = (King, Enemy) then
+            return True;
+        end if; 
 
-		-- Pawn
-		if     Get_Piece_At((Pos.X - 1, Pawn_Y)) = (Pawn, Enemy)
-		    or Get_Piece_At((Pos.X + 1, Pawn_Y)) = (Pawn, Enemy) then
-			return True;
-		end if;
+        -- Pawn
+        if     Get_Piece_At((Pos.X - 1, Pawn_Y)) = (Pawn, Enemy)
+            or Get_Piece_At((Pos.X + 1, Pawn_Y)) = (Pawn, Enemy) then
+            return True;
+        end if;
 
-		return False;
-	end Is_King_Check;
+        return False;
+    end Is_King_Check;
 
-	function Is_Check(Player : In Player_Type; Enemy : In Player_Type) return Boolean is
-	begin
-		for Y in Range_Inner_Board loop
-			for X in Range_Inner_Board loop
-				if Get_Piece_At((X, Y)) = (King, Player) then
-					return Is_King_Check((X, Y), Enemy);
-				end if;
-			end loop;
-		end loop;
+    function Is_Check(Player : In Player_Type; Enemy : In Player_Type) return Boolean is
+    begin
+        for Y in Range_Inner_Board loop
+            for X in Range_Inner_Board loop
+                if Get_Piece_At((X, Y)) = (King, Player) then
+                    return Is_King_Check((X, Y), Enemy);
+                end if;
+            end loop;
+        end loop;
 
-		raise Program_Error with "The King is dead. Long live the king !"; 
+        raise Program_Error with "The King is dead. Long live the king !"; 
 
-		return False;
-	end Is_Check;
+        return False;
+    end Is_Check;
 
     procedure Place(C : in Character; Position : in out Coordinate) is
         Increment               : Range_Board := 1;
@@ -185,7 +185,7 @@ package body Chess is
             when Bishop => return (if Cell.Player = White then 'B' else 'b');
             when Queen => return (if Cell.Player = White then 'Q' else 'q');
             when King => return (if Cell.Player = White then 'K' else 'k');
-			when Forbidden => return 'X';	-- should throw an error
+            when Forbidden => return 'X';    -- should throw an error
         end case;
     end Collect;
 
@@ -232,7 +232,7 @@ package body Chess is
                 when 'K' => Chess.White_Castling_K := True;
                 when 'q' => Chess.Black_Castling_Q := True;
                 when 'k' => Chess.Black_Castling_K := True;
-				when others => Null;
+                when others => Null;
             end case;
             Index := Index + 1;
         end loop;
@@ -263,7 +263,7 @@ package body Chess is
             Chess.Fullmove := Integer'Value(Line(Index .. Last));
         end if;
 
-		Chess.Is_Enemy_Check := Is_Check(Get_Enemy(Chess.Player), Chess.Player);
+        Chess.Is_Enemy_Check := Is_Check(Get_Enemy(Chess.Player), Chess.Player);
     end Read_Fen;
 
     procedure Load_Fen(Filename : in String) is
@@ -393,32 +393,32 @@ package body Chess is
 
     procedure Move_Piece(Move : in Move_Type) is
     begin
-		if Get_Piece_At(Move.Start).Piece = Pawn
-			or Get_Piece_At(Move.Target).Piece /= Empty then
-			Halfmove_Done := False;
-		end if;
+        if Get_Piece_At(Move.Start).Piece = Pawn
+            or Get_Piece_At(Move.Target).Piece /= Empty then
+            Halfmove_Done := False;
+        end if;
 
-		Board(Move.Target.X, Move.Target.Y) := Get_Piece_At(Move.Start);
-		Board(Move.Start.X, Move.Start.Y) := (Empty, Unknown);
+        Board(Move.Target.X, Move.Target.Y) := Get_Piece_At(Move.Start);
+        Board(Move.Start.X, Move.Start.Y) := (Empty, Unknown);
     end Move_Piece;
 
     -- procedure Undo_Move is --
     -- begin --
     -- end Undo_Move; --
 
-	procedure End_Turn is
-	begin
-		Halfmove := (if Halfmove_Done then Halfmove + 1 else 0);
-		Halfmove_Done := True;
+    procedure End_Turn is
+    begin
+        Halfmove := (if Halfmove_Done then Halfmove + 1 else 0);
+        Halfmove_Done := True;
 
-		if Player = Black then
-			Fullmove := Fullmove + 1;
-		end if;
+        if Player = Black then
+            Fullmove := Fullmove + 1;
+        end if;
 
-		Is_Enemy_Check := Is_Check(Player, Get_Enemy(Player));
+        Is_Enemy_Check := Is_Check(Player, Get_Enemy(Player));
 
-		Player := Get_Enemy(Player);
-	end End_Turn;
+        Player := Get_Enemy(Player);
+    end End_Turn;
 
     procedure Print is
     begin

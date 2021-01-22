@@ -21,7 +21,7 @@ package Chess is
     end record;
 
     type Range_Board is range -1 .. 10;
-	subtype Range_Inner_Board is Range_Board range 1 .. 8;
+    subtype Range_Inner_Board is Range_Board range 1 .. 8;
 
     type Coordinate is record
         X, Y : Range_Board := 1;
@@ -40,7 +40,7 @@ package Chess is
     White_Castling_K    : Boolean;
     Black_Castling_Q    : Boolean;
     Black_Castling_K    : Boolean;
-	Is_Enemy_Check      : Boolean;
+    Is_Enemy_Check      : Boolean;
     En_Passant_Target   : Coordinate;
     -- Move_List           : Move_List_Type; --
 
@@ -51,14 +51,14 @@ package Chess is
     procedure Move_Piece(Move : in Move_Type);
     -- procedure Undo_Move; --
     function Get_Piece_At(Position : in Coordinate) return Cell_Type;
-	procedure End_Turn;
+    procedure End_Turn;
     procedure Print;
 
 private
 
     Board               : Board_Type;
     Halfmove            : Natural := 0;
-	Halfmove_Done		: Boolean := True;
+    Halfmove_Done       : Boolean := True;
     Fullmove            : Natural := 1;
 
 end Chess;
