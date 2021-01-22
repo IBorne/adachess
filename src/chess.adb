@@ -96,28 +96,28 @@ package body Chess is
         -- Diagonal lower right
 
         -- Knight
-        if     Get_Piece_At((Pos.X - 1, Pos.Y - 3)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X - 1, Pos.Y + 3)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X + 1, Pos.Y - 3)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X + 1, Pos.Y + 3)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X - 3, Pos.Y - 1)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X - 3, Pos.Y + 1)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X + 3, Pos.Y - 1)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X + 3, Pos.Y + 1)) = (Knight, Enemy) then
+        if     Get_Piece_At((Pos.X - 1, Pos.Y - 2)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X - 1, Pos.Y + 2)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X + 1, Pos.Y - 2)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X + 1, Pos.Y + 2)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X - 2, Pos.Y - 1)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X - 2, Pos.Y + 1)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X + 2, Pos.Y - 1)) = (Knight, Enemy)
+            or Get_Piece_At((Pos.X + 2, Pos.Y + 1)) = (Knight, Enemy) then
             return True;
         end if;
 
         -- King
         if     Get_Piece_At((Pos.X - 1, Pos.Y - 1)) = (King, Enemy)
-            or Get_Piece_At((Pos.X - 1, Pos.Y + 0)) = (King, Enemy)
-            or Get_Piece_At((Pos.X + 1, Pos.Y + 1)) = (King, Enemy)
             or Get_Piece_At((Pos.X + 0, Pos.Y - 1)) = (King, Enemy)
-            or Get_Piece_At((Pos.X + 0, Pos.Y + 1)) = (King, Enemy)
             or Get_Piece_At((Pos.X + 1, Pos.Y - 1)) = (King, Enemy)
+            or Get_Piece_At((Pos.X - 1, Pos.Y + 0)) = (King, Enemy)
             or Get_Piece_At((Pos.X + 1, Pos.Y + 0)) = (King, Enemy)
+            or Get_Piece_At((Pos.X - 1, Pos.Y + 1)) = (King, Enemy)
+            or Get_Piece_At((Pos.X + 0, Pos.Y + 1)) = (King, Enemy)
             or Get_Piece_At((Pos.X + 1, Pos.Y + 1)) = (King, Enemy) then
             return True;
-        end if; 
+        end if;
 
         -- Pawn
         if     Get_Piece_At((Pos.X - 1, Pawn_Y)) = (Pawn, Enemy)
@@ -284,6 +284,8 @@ package body Chess is
         Read_Fen(Line, Last);
 
         Close(Input);
+	exception
+		when Name_Error => Put_Line("Couldn't find file " & Filename);
     end Load_Fen;
 
     function Write_Fen return String is
@@ -396,6 +398,31 @@ package body Chess is
         Close(Output);
     end Save_Fen;
 
+	procedure Check_Promote_Pawn(Pos : in Coordinate) is
+		Cell    : Cell_Type := Get_Piece_At(Pos);
+		Str     : String(1 .. 80);
+    	Last    : Natural;
+	begin
+		if Cell.Piece = Pawn and Pos.Y = (if Cell.Player = White then 8 else 1) then
+			while True loop
+				Put("Enter the piece to promote the pawn into (Q/N/R/B) : ");
+				Get_Line(Str, Last);
+
+				if Last = 1 then
+					case Str(1) is
+						when 'Q' => Board(Pos.X, Pos.Y).Piece := Queen;     return;
+						when 'N' => Board(Pos.X, Pos.Y).Piece := Knight;    return;
+						when 'R' => Board(Pos.X, Pos.Y).Piece := Rook;      return;
+						when 'B' => Board(Pos.X, Pos.Y).Piece := Bishop;    return;
+						when others => Null;
+					end case;
+				end if;
+
+				Put_Line("Invalid promotion : " & Str(1 .. Last) & ". Should be Q, N, R or B.");
+			end loop;
+		end if;
+	end Check_Promote_Pawn;
+
     procedure Move_Piece(Move : in Move_Type) is
     begin
         if Get_Piece_At(Move.Start).Piece = Pawn
@@ -405,6 +432,8 @@ package body Chess is
 
         Board(Move.Target.X, Move.Target.Y) := Get_Piece_At(Move.Start);
         Board(Move.Start.X, Move.Start.Y) := (Empty, Unknown);
+
+		Check_Promote_Pawn(Move.Target);
     end Move_Piece;
 
     -- procedure Undo_Move is --
@@ -423,6 +452,9 @@ package body Chess is
         Player := Get_Enemy(Player);
 
         Is_Enemy_Check := Is_Check(Player);
+		if Is_Enemy_Check then
+			-- TODO: check for checkmates
+		end if;
     end End_Turn;
 
     procedure Print is

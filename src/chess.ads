@@ -48,6 +48,7 @@ package Chess is
     procedure Load_Fen(Filename : in String);
     function Write_Fen return String;
     procedure Save_Fen(Filename : in String);
+	procedure Check_Promote_Pawn(Pos : in Coordinate);
     procedure Move_Piece(Move : in Move_Type);
     -- procedure Undo_Move; --
     function Is_Check(Player : in Player_Type) return Boolean;
