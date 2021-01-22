@@ -13,5 +13,8 @@ test: ${SRC} src/chess_tb.adb src/move_tb.adb src/test.adb
 #perft: ${SRC} src/perft.adb src/perft_func.adb
 #	${CC} ${LIB} $^
 
+game_test: ${SRC} src/test_game.adb
+	${CC} ${LIB} $^
+
 clean:
 	${RM} *.ali *.o main test
