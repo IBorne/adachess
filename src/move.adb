@@ -159,10 +159,61 @@ package body Move is
 
 	            if Is_Own_Check then
     	            return False;
-            end if;
+            	end if;
             end;
         end if;
 
         return valid_piece_move(Move, Player);
     end is_valid_move;
+
+	function is_valid_castling(Side : in Side_Type; Player : in Player_Type) return Boolean is
+		Castling_K : Boolean := (if Player = White then White_Castling_K else Black_Castling_K);
+		Castling_Q : Boolean := (if Player = White then White_Castling_Q else Black_Castling_Q);
+
+		Y : Range_Board := (if Player = White then 1 else 8);
+
+		function check_castling_at(Pos : in Coordinate; Player : in Player_Type) return Boolean is
+			Is_Own_Check : Boolean;
+		begin
+			-- No piece can be between the king and the rook
+			if Get_Piece_At(Pos) /= (Empty, Unknown) then
+				return True;
+			end if;
+
+			-- You are not allowed to castle through check
+			-- FIXME: could disable Castling
+			Move_Piece(((5, Pos.Y), Pos));
+			Is_Own_Check := Is_Check(Player);
+			Move_Piece((Pos, (5, Pos.Y)));
+
+			return Is_Own_Check;
+		end check_castling_at;
+	begin
+		-- You cannot castle if your king or your rook moved
+		if     (Side = Kingside and Castling_K = False)
+			or (Side = Queenside and Castling_Q = False) then
+			return False;
+		end if;
+
+		-- You cannot castle out of check
+		if Is_Enemy_Check then
+			return False;
+		end if;
+
+		if Side = Kingside then
+			for X in 6..7 loop
+				if check_castling_at((Range_Board(X), Y), Player) then
+					return False;
+				end if;
+			end loop;
+		else
+			for X in reverse 3..4 loop
+				if check_castling_at((Range_Board(X), Y), Player) then
+					return False;
+				end if;
+			end loop;
+		end if;
+
+		return True;
+	end is_valid_castling;
 end Move;
