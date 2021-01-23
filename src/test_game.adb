@@ -8,7 +8,7 @@ procedure Test_Game is
 	function Parse_Move(Str : String) return Move_Type is
 		Move : Move_Type;
 	begin
-		if Str'Length = 4 then
+		if Str'Length /= 4 then
 			return ((0, 0), (0, 0));
 		end if;
 
@@ -37,36 +37,46 @@ begin
 		declare
 		begin
 			Open(File,
-				Mode => In_File,
-				Name => Argument(I));
+				 Mode => In_File,
+				 Name => Argument(I));
 
 			while not End_Of_File(File) loop
 				declare
 					Move_Str : String := Get_Line(File); 
 					Move : Move_Type := Parse_Move(Move_Str);
 				begin
-					if Move_Str /= "" and Move.Start /= Move.Target then
-						if is_valid_move(Move, Player) then
-							move_piece(Move);
-							if End_Turn then
-								Put_Line((if Player = White then "White" else "Black") & " won.");
-								Print;
-								Put_Line("");
-								exit;
+					if Move_Str /= "" then
+						if     (Move_Str = "O-O" and is_valid_castling(Kingside, Player))
+							or (Move_Str = "O-O-O" and is_valid_castling(Queenside, Player))
+							or (Move.Start /= Move.Target and is_valid_move(Move, Player)) then
+							if Move_Str = "O-O" then
+								Move_Castling(Kingside, Player);
+							elsif Move_Str = "O-O-O" then
+								Move_Castling(Queenside, Player);
+							else
+								move_piece(Move);
 							end if;
 
-							Line := Line + 1;
+							if End_Turn then
+								Put_Line((if Player = White then "White" else "Black") & " won.");
+								exit;
+							end if;
 						else
-							Put_Line("Failed to move at line " & Integer'Image(Line)
+							Put_Line("Invalid input at line" & Integer'Image(Line)
 								& " of file " & Argument(I) & ": " & Move_Str);
-							Print;
-							Put_Line("");
-
 							exit;
 						end if;
 					end if;
+
+					Line := Line + 1;
 				end;
 			end loop;
+
+			Player := White;
+			Put_Line("");
+			Print;
+			Put_Line("");
+			Put_Line("");
 
 			Close(File);
 		exception
