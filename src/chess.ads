@@ -33,6 +33,8 @@ package Chess is
         Start, Target   : Coordinate;
     end record;
 
+	type Side_Type is (Kingside, Queenside);
+
 	type Board_Save is record
 		Player              : Player_Type;
 	    White_Castling_Q    : Boolean;
@@ -64,6 +66,7 @@ package Chess is
     procedure Save_Fen(Filename : in String);
 	procedure Check_Promote_Pawn(Pos : in Coordinate);
     procedure Move_Piece(Move : in Move_Type);
+	procedure Move_Castling(Side : in Side_Type; Player : in Player_Type);
     -- procedure Undo_Move; --
     function Is_Check(Player : in Player_Type) return Boolean;
     function Get_Piece_At(Position : in Coordinate) return Cell_Type;

@@ -421,17 +421,54 @@ package body Chess is
 	end Check_Promote_Pawn;
 
     procedure Move_Piece(Move : in Move_Type) is
+		Castling_K : Boolean := (if Player = White then White_Castling_K else Black_Castling_K);
+		Castling_Q : Boolean := (if Player = White then White_Castling_Q else Black_Castling_Q);
     begin
         if Get_Piece_At(Move.Start).Piece = Pawn
             or Get_Piece_At(Move.Target).Piece /= Empty then
             Halfmove_Done := False;
         end if;
 
+		-- FIXME:
+--		if Castling_K or Castling_Q then
+--			case Get_Piece_At(Move.Start).Piece is
+--				when King =>
+--					Castling_K := False;
+--					Castling_Q := False;
+
+--				when Rook =>
+--					if Move.Start.X = 1 then Castling_Q := False; end if;
+--					if Move.Start.Y = 8 then Castling_K := False; end if;
+
+--				when others => Null;
+--			end case;
+
+--			if Player = White then
+--				White_Castling_K := Castling_K;
+--				White_Castling_Q := Castling_Q;
+--			else
+--				Black_Castling_K := Castling_K;
+--				Black_Castling_Q := Castling_Q;
+--			end if;
+--		end if;
+
         Board(Move.Target.X, Move.Target.Y) := Get_Piece_At(Move.Start);
         Board(Move.Start.X, Move.Start.Y) := (Empty, Unknown);
 
 		Check_Promote_Pawn(Move.Target);
     end Move_Piece;
+
+	procedure Move_Castling(Side : in Side_Type; Player : in Player_Type) is
+		Y : Range_Board := (if Player = White then 1 else 8);
+	begin
+		if Side = Kingside then
+			Move_Piece(((5, Y), (7, Y)));
+			Move_Piece(((8, Y), (6, Y)));
+		elsif Side = Queenside then
+			Move_Piece(((5, Y), (3, Y)));
+			Move_Piece(((1, Y), (4, Y)));
+		end if;
+	end Move_Castling;
 
     -- procedure Undo_Move is --
     -- begin --
