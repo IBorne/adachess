@@ -22,6 +22,33 @@ procedure Test_Game is
 		when others => return ((0, 0), (0, 0));
 	end Parse_Move;
 
+	function Check_Validity(Str : String; Move : Move_Type) return Boolean is
+	begin
+		if Str = "O-O" then
+			if not is_valid_castling(Kingside, Player) then
+				return False;
+			end if;
+
+			Move_Castling(Kingside, Player);
+		elsif Str = "O-O-O" then
+			if not is_valid_castling(Queenside, Player) then
+				return False;
+			end if;
+
+			Move_Castling(Queenside, Player);
+		elsif Move.Start /= Move.Target then
+			if not is_valid_move(Move, Player) then
+				return False;
+			end if;
+
+			move_piece(Move);
+		else
+			return False;
+		end if;
+
+		return True;
+	end Check_Validity;
+
     File : File_Type;
 	Line : Integer;
 begin
@@ -31,58 +58,56 @@ begin
 	end if;
 
 	for I in 1 .. Argument_Count loop
-	    Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
+		if Argument(I) = "--debug" or Argument(I) = "-d" then
+			Set_Debug(True);
+		else
+			Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
 
-		Line := 1;
-		declare
-		begin
-			Open(File,
-				 Mode => In_File,
-				 Name => Argument(I));
+			Line := 1;
+			declare
+			begin
+				Open(File,
+					Mode => In_File,
+					Name => Argument(I));
 
-			while not End_Of_File(File) loop
-				declare
-					Move_Str : String := Get_Line(File); 
-					Move : Move_Type := Parse_Move(Move_Str);
-				begin
-					if Move_Str /= "" then
-						if     (Move_Str = "O-O" and is_valid_castling(Kingside, Player))
-							or (Move_Str = "O-O-O" and is_valid_castling(Queenside, Player))
-							or (Move.Start /= Move.Target and is_valid_move(Move, Player)) then
-							if Move_Str = "O-O" then
-								Move_Castling(Kingside, Player);
-							elsif Move_Str = "O-O-O" then
-								Move_Castling(Queenside, Player);
+				while not End_Of_File(File) loop
+					declare
+						Move_Str : String := Get_Line(File);
+						Move : Move_Type := Parse_Move(Move_Str);
+					begin
+						if Move_Str /= "" then
+							if Check_Validity(Move_Str, Move) then
+								if End_Turn then
+									Put_Line((if Player = Black then "White" else "Black") & " won.");
+									exit;
+								end if;
 							else
-								move_piece(Move);
-							end if;
-
-							if End_Turn then
-								Put_Line((if Player = White then "White" else "Black") & " won.");
+								Put_Line("Invalid input at line" & Integer'Image(Line)
+									& " of file " & Argument(I) & ": " & Move_Str);
 								exit;
 							end if;
-						else
-							Put_Line("Invalid input at line" & Integer'Image(Line)
-								& " of file " & Argument(I) & ": " & Move_Str);
-							exit;
 						end if;
-					end if;
 
-					Line := Line + 1;
-				end;
-			end loop;
+						Line := Line + 1;
+					end;
+				end loop;
 
-			Player := White;
-			Put_Line("");
-			Print;
-			Put_Line("");
-			Put_Line("");
+				if End_Of_File(File) then
+					Put_Line((if Player = Black then "White" else "Black") & " won.");
+				end if;
 
-			Close(File);
-		exception
-			when Name_Error =>
-				Put_Line("Couldn't find file " & Argument(I));
+				Player := White;
 				Put_Line("");
-		end;
+				Print;
+				Put_Line("");
+				Put_Line("");
+
+				Close(File);
+			exception
+				when Name_Error =>
+					Put_Line("Couldn't find file " & Argument(I));
+					Put_Line("");
+			end;
+		end if;
 	end loop;
 end Test_Game;
