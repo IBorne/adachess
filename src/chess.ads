@@ -60,6 +60,9 @@ package Chess is
     En_Passant_Target   : Coordinate;
     -- Move_List           : Move_List_Type; --
 
+	procedure Set_Debug(Debug : Boolean);
+	procedure Print_Debug(Str : String);
+
     procedure Read_Fen(Line : in String; Last : in Natural);
     procedure Load_Fen(Filename : in String);
     function Write_Fen return String;
@@ -81,5 +84,6 @@ private
     Halfmove            : Natural := 0;
     Halfmove_Done       : Boolean := True;
     Fullmove            : Natural := 1;
+	Debug				: Boolean := False;
 
 end Chess;

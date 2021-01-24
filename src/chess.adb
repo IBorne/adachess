@@ -2,6 +2,19 @@ with Move; use Move;
 
 package body Chess is
 
+	procedure Set_Debug(Debug : Boolean) is
+	begin
+		Chess.Debug := Debug;
+	end Set_Debug;
+
+	procedure Print_Debug(Str : String) is
+	begin
+		if Chess.Debug then
+			Put_Line((if Player = White then "White" else "Black") & " -"
+				   & Integer'Image(Fullmove) & " : " & Str);
+		end if;
+	end Print_Debug;
+
     function Get_Piece_At(Position : in Coordinate) return Cell_Type is
     begin
         return Chess.Board(Position.X, Position.Y);
@@ -39,13 +52,18 @@ package body Chess is
             return Is_Player_At(Pos, Enemy) and (Is_Cell_At(Pos, Queen) or Is_Cell_At(Pos, Bishop));
         end Is_Enemy_Queen_Bishop;
 
-        Pawn_Y : Range_Board := (if Enemy = White then Pos.Y + 1 else Pos.Y - 1);
+        Pawn_Y : Range_Board := (if Enemy = Black then Pos.Y + 1 else Pos.Y - 1);
     begin
         -- Queen, Rook
         -- Vertical lower part
         if Pos.Y > Range_Inner_Board'First then
-            for Y in Range_Inner_Board'First .. Pos.Y - 1 loop
+            for Y in reverse Range_Inner_Board'First .. Pos.Y - 1 loop
                 if Is_Enemy_Queen_Rook((Pos.X, Y), Enemy) then
+					Print_Debug("Check by Queen or Rook under the king ("
+								& Integer'Image(Integer(Pos.X)) & ","
+								& Integer'Image(Integer(Pos.Y)) & " ) -> ("
+								& Integer'Image(Integer(Pos.X)) & ","
+								& Integer'Image(Integer(Y)) & " )");
                     return True;
                 end if;
 
@@ -57,6 +75,11 @@ package body Chess is
         if Pos.Y < Range_Inner_Board'Last then
             for Y in Pos.Y + 1 .. Range_Inner_Board'Last loop
                 if Is_Enemy_Queen_Rook((Pos.X, Y), Enemy) then
+					Print_Debug("Check by Queen or Rook above the king ("
+							  & Integer'Image(Integer(Pos.X)) & ","
+							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
+							  & Integer'Image(Integer(Pos.X)) & ","
+							  & Integer'Image(Integer(Y)) & " )");
                     return True;
                 end if;
 
@@ -66,8 +89,13 @@ package body Chess is
 
         -- Horizontal left part
         if Pos.X > Range_Inner_Board'First then
-            for X in Range_Inner_Board'First .. Pos.X - 1 loop
+            for X in reverse Range_Inner_Board'First .. Pos.X - 1 loop
                 if Is_Enemy_Queen_Rook((X, Pos.Y), Enemy) then
+					Print_Debug("Check by Queen or Rook at the left of the king ("
+							  & Integer'Image(Integer(Pos.X)) & ","
+							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
+							  & Integer'Image(Integer(X)) & ","
+							  & Integer'Image(Integer(Pos.Y)) & " )");
                     return True;
                 end if;
 
@@ -79,6 +107,11 @@ package body Chess is
         if Pos.X < Range_Inner_Board'Last then
             for X in Pos.X + 1 .. Range_Inner_Board'Last loop
                 if Is_Enemy_Queen_Rook((X, Pos.Y), Enemy) then
+					Print_Debug("Check by Queen or Rook at the right of the king ("
+							  & Integer'Image(Integer(Pos.X)) & ","
+							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
+							  & Integer'Image(Integer(X)) & ","
+							  & Integer'Image(Integer(Pos.Y)) & " )");
                     return True;
                 end if;
 
@@ -101,6 +134,7 @@ package body Chess is
             or Get_Piece_At((Pos.X - 2, Pos.Y + 1)) = (Knight, Enemy)
             or Get_Piece_At((Pos.X + 2, Pos.Y - 1)) = (Knight, Enemy)
             or Get_Piece_At((Pos.X + 2, Pos.Y + 1)) = (Knight, Enemy) then
+			Print_Debug("Check by Knight");
             return True;
         end if;
 
@@ -113,12 +147,14 @@ package body Chess is
             or Get_Piece_At((Pos.X - 1, Pos.Y + 1)) = (King, Enemy)
             or Get_Piece_At((Pos.X + 0, Pos.Y + 1)) = (King, Enemy)
             or Get_Piece_At((Pos.X + 1, Pos.Y + 1)) = (King, Enemy) then
+			Print_Debug("Check by King");
             return True;
         end if;
 
         -- Pawn
         if     Get_Piece_At((Pos.X - 1, Pawn_Y)) = (Pawn, Enemy)
             or Get_Piece_At((Pos.X + 1, Pawn_Y)) = (Pawn, Enemy) then
+			Print_Debug("Check by Pawn");
             return True;
         end if;
 
