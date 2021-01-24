@@ -52,7 +52,7 @@ b5b4
 c3d1
 c8b7
 
-e8f6
+e5f6
 g7f6
 
 b2f6
@@ -86,6 +86,6 @@ f2c2
 d5d4
 
 a4a5
-b4b5
+b6b5
 
 e5c7
