@@ -1,188 +1,12 @@
-with Move; use Move;
-
 package body Chess is
 
-	procedure Set_Debug(Debug : Boolean) is
-	begin
-		Chess.Debug := Debug;
-	end Set_Debug;
-
-	procedure Print_Debug(Str : String) is
-	begin
-		if Chess.Debug then
-			Put_Line((if Player = White then "White" else "Black") & " -"
-				   & Integer'Image(Fullmove) & " : " & Str);
-		end if;
-	end Print_Debug;
-
-    function Get_Piece_At(Position : in Coordinate) return Cell_Type is
-    begin
-        return Chess.Board(Position.X, Position.Y);
-    end Get_Piece_At;
-
-    function Is_Player_At(Pos : in Coordinate; Player : in Player_Type) return Boolean is
-    begin
-        return Get_Piece_At(Pos).Player = Player;
-    end Is_Player_At;
-
-    function Is_Cell_At(Pos : in Coordinate; Piece : in Piece_Type) return Boolean is
-    begin
-        return Get_Piece_At(Pos).Piece = Piece;
-    end Is_Cell_At;
-
-    function Is_Empty_Cell(Pos : in Coordinate) return Boolean is
-    begin
-        return Get_Piece_At(Pos).Piece = Empty;
-    end Is_Empty_Cell;
-
-    function Get_Enemy(Player : in Player_Type) return Player_Type is
-    begin
-        return (if Player = White then Black else White);
-    end Get_Enemy;
-
-    -- TODO: factorize (if possible)
-    function Is_King_Check(Pos : in Coordinate; Enemy : in Player_Type) return Boolean is
-        function Is_Enemy_Queen_Rook(Pos : in Coordinate; Enemy : in Player_Type) return Boolean is
-        begin
-            return Is_Player_At(Pos, Enemy) and (Is_Cell_At(Pos, Queen) or Is_Cell_At(Pos, Rook));
-        end Is_Enemy_Queen_Rook;
-
-        function Is_Enemy_Queen_Bishop(Pos : in Coordinate; Enemy : in Player_Type) return Boolean is
-        begin
-            return Is_Player_At(Pos, Enemy) and (Is_Cell_At(Pos, Queen) or Is_Cell_At(Pos, Bishop));
-        end Is_Enemy_Queen_Bishop;
-
-        Pawn_Y : Range_Board := (if Enemy = Black then Pos.Y + 1 else Pos.Y - 1);
-    begin
-        -- Queen, Rook
-        -- Vertical lower part
-        if Pos.Y > Range_Inner_Board'First then
-            for Y in reverse Range_Inner_Board'First .. Pos.Y - 1 loop
-                if Is_Enemy_Queen_Rook((Pos.X, Y), Enemy) then
-					Print_Debug("Check by Queen or Rook under the king ("
-								& Integer'Image(Integer(Pos.X)) & ","
-								& Integer'Image(Integer(Pos.Y)) & " ) -> ("
-								& Integer'Image(Integer(Pos.X)) & ","
-								& Integer'Image(Integer(Y)) & " )");
-                    return True;
-                end if;
-
-                exit when not Is_Empty_Cell((Pos.X, Y));
-            end loop;
-        end if;
-
-        -- Vertical upper part
-        if Pos.Y < Range_Inner_Board'Last then
-            for Y in Pos.Y + 1 .. Range_Inner_Board'Last loop
-                if Is_Enemy_Queen_Rook((Pos.X, Y), Enemy) then
-					Print_Debug("Check by Queen or Rook above the king ("
-							  & Integer'Image(Integer(Pos.X)) & ","
-							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
-							  & Integer'Image(Integer(Pos.X)) & ","
-							  & Integer'Image(Integer(Y)) & " )");
-                    return True;
-                end if;
-
-                exit when not Is_Empty_Cell((Pos.X, Y));
-            end loop;
-        end if;
-
-        -- Horizontal left part
-        if Pos.X > Range_Inner_Board'First then
-            for X in reverse Range_Inner_Board'First .. Pos.X - 1 loop
-                if Is_Enemy_Queen_Rook((X, Pos.Y), Enemy) then
-					Print_Debug("Check by Queen or Rook at the left of the king ("
-							  & Integer'Image(Integer(Pos.X)) & ","
-							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
-							  & Integer'Image(Integer(X)) & ","
-							  & Integer'Image(Integer(Pos.Y)) & " )");
-                    return True;
-                end if;
-
-                exit when not Is_Empty_Cell((X, Pos.Y));
-            end loop;
-        end if;
-
-        -- Vertical upper part
-        if Pos.X < Range_Inner_Board'Last then
-            for X in Pos.X + 1 .. Range_Inner_Board'Last loop
-                if Is_Enemy_Queen_Rook((X, Pos.Y), Enemy) then
-					Print_Debug("Check by Queen or Rook at the right of the king ("
-							  & Integer'Image(Integer(Pos.X)) & ","
-							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
-							  & Integer'Image(Integer(X)) & ","
-							  & Integer'Image(Integer(Pos.Y)) & " )");
-                    return True;
-                end if;
-
-                exit when not Is_Empty_Cell((X, Pos.Y));
-            end loop;
-        end if;
-
-        -- TODO: Queen, Bishop
-        -- Diagonal upper left
-        -- Diagonal upper right
-        -- Diagonal lower left
-        -- Diagonal lower right
-
-        -- Knight
-        if     Get_Piece_At((Pos.X - 1, Pos.Y - 2)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X - 1, Pos.Y + 2)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X + 1, Pos.Y - 2)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X + 1, Pos.Y + 2)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X - 2, Pos.Y - 1)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X - 2, Pos.Y + 1)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X + 2, Pos.Y - 1)) = (Knight, Enemy)
-            or Get_Piece_At((Pos.X + 2, Pos.Y + 1)) = (Knight, Enemy) then
-			Print_Debug("Check by Knight");
-            return True;
-        end if;
-
-        -- King
-        if     Get_Piece_At((Pos.X - 1, Pos.Y - 1)) = (King, Enemy)
-            or Get_Piece_At((Pos.X + 0, Pos.Y - 1)) = (King, Enemy)
-            or Get_Piece_At((Pos.X + 1, Pos.Y - 1)) = (King, Enemy)
-            or Get_Piece_At((Pos.X - 1, Pos.Y + 0)) = (King, Enemy)
-            or Get_Piece_At((Pos.X + 1, Pos.Y + 0)) = (King, Enemy)
-            or Get_Piece_At((Pos.X - 1, Pos.Y + 1)) = (King, Enemy)
-            or Get_Piece_At((Pos.X + 0, Pos.Y + 1)) = (King, Enemy)
-            or Get_Piece_At((Pos.X + 1, Pos.Y + 1)) = (King, Enemy) then
-			Print_Debug("Check by King");
-            return True;
-        end if;
-
-        -- Pawn
-        if     Get_Piece_At((Pos.X - 1, Pawn_Y)) = (Pawn, Enemy)
-            or Get_Piece_At((Pos.X + 1, Pawn_Y)) = (Pawn, Enemy) then
-			Print_Debug("Check by Pawn");
-            return True;
-        end if;
-
-        return False;
-    end Is_King_Check;
-
-    function Is_Check(Player : in Player_Type) return Boolean is
-    begin
-        for Y in Range_Inner_Board loop
-            for X in Range_Inner_Board loop
-                if Get_Piece_At((X, Y)) = (King, Player) then
-                    return Is_King_Check((X, Y), Get_Enemy(Player));
-                end if;
-            end loop;
-        end loop;
-
-        raise Program_Error with "The King is dead. Long live the king !"; 
-
-        return False;
-    end Is_Check;
-
-    procedure Place(C : in Character; Position : in out Coordinate) is
+    procedure Place(C : in Character, Position : in out Coordinate) is
         Increment               : Range_Board := 1;
     begin
         case C is
             when '1' .. '9' =>
-                Increment := Character'Pos(C) - 48;
-                for I in 0 .. Increment loop
+                Increment := Character'Pos(C) - 49;
+                for I in 1 .. Increment loop
                     Chess.Board(Position.X + I, Position.Y) := (Empty, Unknown);
                 end loop;
             when 'p' => Chess.Board(Position.X, Position.Y) := (Pawn, Black);
@@ -197,7 +21,6 @@ package body Chess is
             when 'B' => Chess.Board(Position.X, Position.Y) := (Bishop, White);
             when 'Q' => Chess.Board(Position.X, Position.Y) := (Queen, White);
             when 'K' => Chess.Board(Position.X, Position.Y) := (King, White);
-            when others => Null;
         end case;
 
         if C = '/' then
@@ -206,13 +29,13 @@ package body Chess is
             Chess.Board(9, Position.Y) := (Forbidden, Unknown);
             Chess.Board(10, Position.Y) := (Forbidden, Unknown);
 
-            Position := (1, Position.Y - 1);
+            Position := (0, Position.Y + 1);
         else
             Position.X := Position.X + Increment;
         end if;
     end Place;
 
-    function Collect(Position : in Coordinate) return Character is
+    function Collect(Position : in Coordinate) return String is
         Cell                    : Cell_Type := Chess.Board(Position.X, Position.Y);
     begin
         case Cell.Piece is
@@ -223,15 +46,15 @@ package body Chess is
             when Bishop => return (if Cell.Player = White then 'B' else 'b');
             when Queen => return (if Cell.Player = White then 'Q' else 'q');
             when King => return (if Cell.Player = White then 'K' else 'k');
-            when Forbidden => return 'X';    -- should throw an error
+			when Forbidden => return 'X';	-- should throw an error
         end case;
     end Collect;
 
     procedure Read_Fen(Line : in String; Last : in Natural) is
-        Index                   : Natural := 1;
-        Position                : Coordinate := (1, 8);
+        Index                   : Natural := 0;
+        Position                : Coordinate;
     begin
-        for X in Range_Board loop
+        for X in -1 .. 10 loop
             Chess.Board(X, -1) := (Forbidden, Unknown);
             Chess.Board(X, 0) := (Forbidden, Unknown);
             Chess.Board(X, 9) := (Forbidden, Unknown);
@@ -244,10 +67,10 @@ package body Chess is
             Index := Index + 1;
         end loop;
 
-        Chess.Board(-1, 1) := (Forbidden, Unknown);
-        Chess.Board(0, 1) := (Forbidden, Unknown);
-        Chess.Board(9, 1) := (Forbidden, Unknown);
-        Chess.Board(10, 1) := (Forbidden, Unknown);
+        Chess.Board(-1, 8) := (Forbidden, Unknown);
+        Chess.Board(0, 8) := (Forbidden, Unknown);
+        Chess.Board(9, 8) := (Forbidden, Unknown);
+        Chess.Board(10, 8) := (Forbidden, Unknown);
 
         Index := Index + 1;
 
@@ -270,7 +93,7 @@ package body Chess is
                 when 'K' => Chess.White_Castling_K := True;
                 when 'q' => Chess.Black_Castling_Q := True;
                 when 'k' => Chess.Black_Castling_K := True;
-                when others => Null;
+				when others => Null;
             end case;
             Index := Index + 1;
         end loop;
@@ -279,10 +102,9 @@ package body Chess is
         if Line(Index) = '-' then
             Index := Index + 2;
         else
+            Chess.En_Passant_Target.X := Character'Pos(Line(Index)) - 49;
             Chess.En_Passant_Target.Y := Character'Pos(Line(Index)) - 96;
-            Index := Index + 1;
-            Chess.En_Passant_Target.X := Character'Pos(Line(Index)) - 48;
-            Index := Index + 2;
+            Index := Index + 3;
         end if;
 
         if Index < Last then
@@ -300,13 +122,11 @@ package body Chess is
 
             Chess.Fullmove := Integer'Value(Line(Index .. Last));
         end if;
-
-        Chess.Is_Enemy_Check := Is_Check(Chess.Player);
     end Read_Fen;
 
     procedure Load_Fen(Filename : in String) is
         Input                   : File_Type;
-        Line                    : String(1..256);
+        Line                    : String(1..255);
         Last                    : Natural;
     begin
         Open(File => Input,
@@ -317,20 +137,18 @@ package body Chess is
         Read_Fen(Line, Last);
 
         Close(Input);
-	exception
-		when Name_Error => Put_Line("Couldn't find file " & Filename);
     end Load_Fen;
 
     function Write_Fen return String is
-        Line                    : String(1 .. 256);
+        Line                    : String(Buffer_Size);
         Index                   : Natural := 1;
-        Number                  : String(1 .. 256);
+        Number                  : String;
     begin
-        for Y in reverse Range_Inner_Board loop
+        for Y in 1 .. 8 loop
             declare
                 Count           : Natural := 0;
             begin
-                for X in Range_Inner_Board loop
+                for X in 1 .. 8 loop
                     declare
                         Char    : Character := Collect((X, Y));
                     begin
@@ -338,28 +156,28 @@ package body Chess is
                             Count := Count + 1;
                         else
                             if Count > 0 then
-                                Line(Index) := Character'Val(Count + 48);
+                                Line(Index) := Character'Val(Count + 49);
                                 Index := Index + 1;
                                 Count := 0;
                             end if;
-                            Line(Index) := Char;
+                            Line(Index) := C;
                             Index := Index + 1;
                         end if;
                     end;
                 end loop;
 
                 if Count > 0 then
-                    Line(Index) := Character'Val(Count + 48);
+                    Line(Index) := Character'Val(Count + 49);
                     Index := Index + 1;
                     Count := 0;
                 end if;
 
-                Line(Index) := (if Y = 1 then ' ' else '/');
+                Line(Index) := if Y < 8 then '/' else ' ';
                 Index := Index + 1;
             end;
         end loop;
 
-        Line(Index) := (if Chess.Player = White then 'w' else 'b');
+        Line(Index) := if Chess.Player < White then 'w' else 'b';
         Index := Index + 1;
         Line(Index) := ' ';
         Index := Index + 1;
@@ -396,20 +214,20 @@ package body Chess is
         else
             Line(Index) := Character'Val(Chess.En_Passant_Target.X + 96);
             Index := Index + 1;
-            Line(Index) := Character'Val(Chess.En_Passant_Target.Y + 48);
+            Line(Index) := Character'Val(Chess.En_Passant_Target.Y + 49);
             Index := Index + 1;
         end if;
         Line(Index) := ' ';
         Index := Index + 1;
 
         Number := Integer'Image(Chess.Halfmove) & " ";
-        for Char of Number loop
+        for Char in Number loop
             Line(Index) := Char;
             Index := Index + 1;
         end loop;
 
         Number := Integer'Image(Chess.Fullmove);
-        for Char of Number loop
+        for Char in Number loop
             Line(Index) := Char;
             Index := Index + 1;
         end loop;
@@ -419,7 +237,7 @@ package body Chess is
 
     procedure Save_Fen(Filename : in String) is
         Output                  : File_Type;
-        Line                    : String(1 .. 256) := (others => ' ');
+        Line                    : String;
     begin
         Create(File => Output,
                Mode => Out_File,
@@ -431,171 +249,37 @@ package body Chess is
         Close(Output);
     end Save_Fen;
 
-	procedure Check_Promote_Pawn(Pos : in Coordinate) is
-		Cell    : Cell_Type := Get_Piece_At(Pos);
-		Str     : String(1 .. 80);
-    	Last    : Natural;
-	begin
-		if Cell.Piece = Pawn and Pos.Y = (if Cell.Player = White then 8 else 1) then
-			while True loop
-				Put("Enter the piece to promote the pawn into (Q/N/R/B) : ");
-				Get_Line(Str, Last);
-
-				if Last = 1 then
-					case Str(1) is
-						when 'Q' => Board(Pos.X, Pos.Y).Piece := Queen;     return;
-						when 'N' => Board(Pos.X, Pos.Y).Piece := Knight;    return;
-						when 'R' => Board(Pos.X, Pos.Y).Piece := Rook;      return;
-						when 'B' => Board(Pos.X, Pos.Y).Piece := Bishop;    return;
-						when others => Null;
-					end case;
-				end if;
-
-				Put_Line("Invalid promotion : " & Str(1 .. Last) & ". Should be Q, N, R or B.");
-			end loop;
-		end if;
-	end Check_Promote_Pawn;
-
     procedure Move_Piece(Move : in Move_Type) is
-		Castling_K : Boolean := (if Player = White then White_Castling_K else Black_Castling_K);
-		Castling_Q : Boolean := (if Player = White then White_Castling_Q else Black_Castling_Q);
     begin
-        if Get_Piece_At(Move.Start).Piece = Pawn
-            or Get_Piece_At(Move.Target).Piece /= Empty then
-            Halfmove_Done := False;
-        end if;
-
-		-- FIXME:
---		if Castling_K or Castling_Q then
---			case Get_Piece_At(Move.Start).Piece is
---				when King =>
---					Castling_K := False;
---					Castling_Q := False;
-
---				when Rook =>
---					if Move.Start.X = 1 then Castling_Q := False; end if;
---					if Move.Start.Y = 8 then Castling_K := False; end if;
-
---				when others => Null;
---			end case;
-
---			if Player = White then
---				White_Castling_K := Castling_K;
---				White_Castling_Q := Castling_Q;
---			else
---				Black_Castling_K := Castling_K;
---				Black_Castling_Q := Castling_Q;
---			end if;
---		end if;
-
-        Board(Move.Target.X, Move.Target.Y) := Get_Piece_At(Move.Start);
-        Board(Move.Start.X, Move.Start.Y) := (Empty, Unknown);
-
-		Check_Promote_Pawn(Move.Target);
-    end Move_Piece;
-
-	procedure Move_Castling(Side : in Side_Type; Player : in Player_Type) is
-		Y : Range_Board := (if Player = White then 1 else 8);
-	begin
-		if Side = Kingside then
-			Move_Piece(((5, Y), (7, Y)));
-			Move_Piece(((8, Y), (6, Y)));
-		elsif Side = Queenside then
-			Move_Piece(((5, Y), (3, Y)));
-			Move_Piece(((1, Y), (4, Y)));
+		if Get_Piece_At(Move.Start).Piece = Pawn
+			or Get_Piece_At(Move.Target).Piece /= Empty then
+			Halfmove_Done := False;
 		end if;
-	end Move_Castling;
+
+		Board(Move.Target.X, Move.Target.Y) := Get_Piece_At(Move.Start);
+		Board(Move.Start.X, Move.Start.Y) := (Empty, Unknown);
+    end Move_Piece;
 
     -- procedure Undo_Move is --
     -- begin --
     -- end Undo_Move; --
 
-	function Save_Board return Board_Save is
-	begin
-		return (Player,
-	    		White_Castling_Q,
-				White_Castling_K,
-				Black_Castling_Q,
-				Black_Castling_K,
-				Is_Enemy_Check,
-				En_Passant_Target,
-				Board,
-				Halfmove,
-				Halfmove_Done,
-				Fullmove);
-	end Save_Board;
-
-	procedure Revert_Board(Save : Board_Save) is
-	begin
-		Chess.Player              := Save.Player;
-	    Chess.White_Castling_Q    := Save.White_Castling_Q;
-    	Chess.White_Castling_K    := Save.White_Castling_K;
-    	Chess.Black_Castling_Q    := Save.Black_Castling_Q;
-    	Chess.Black_Castling_K    := Save.Black_Castling_K;
-    	Chess.Is_Enemy_Check      := Save.Is_Enemy_Check;
-    	Chess.En_Passant_Target   := Save.En_Passant_Target;
-		Chess.Board               := Save.Board;
-	    Chess.Halfmove            := Save.Halfmove;
-    	Chess.Halfmove_Done       := Save.Halfmove_Done;
-    	Chess.Fullmove            := Save.Fullmove;
-	end Revert_Board;
-
-    function End_Turn return Boolean is
+    function Get_Piece_At(Position : in Coordinate) return Cell_Type is
     begin
-        Halfmove := (if Halfmove_Done then Halfmove + 1 else 0);
-        Halfmove_Done := True;
+		return Board(Position.X, Position.Y);
+    end Get_Piece_At;
 
-        if Player = Black then
-            Fullmove := Fullmove + 1;
-        end if;
+	procedure End_Turn is
+	begin
+		Halfmove := (if Halfmove_Done then Halfmove + 1 else 0);
+		Halfmove_Done := True;
 
-        Player := Get_Enemy(Player);
-
-        Is_Enemy_Check := Is_Check(Player);
-		if Is_Enemy_Check then
-			declare
-				Is_Not_Check : Boolean := False;
-				Save : Board_Save;
-				King_Move : Move_Type;
-			begin
-				for Y in Range_Inner_Board loop
-					for X in Range_Inner_Board loop
-						if Get_Piece_At((X, Y)) = (King, Player) then
-							King_Move.Start := (X, Y);
-						end if;
-					end loop;
-				end loop;
-
-				for Y in Integer range -1 .. 1 loop
-					for X in Integer range -1 .. 1 loop
-						-- Save board
-						Save := Save_Board;
-
-						-- Move
-						King_Move.Target := (Range_Inner_Board(Integer(King_Move.Start.X) + X),
-											 Range_Inner_Board(Integer(King_Move.Start.Y) + Y));
-						if not is_valid_move(King_Move, Player) then
-							exit;
-						end if;
-
-						Move_Piece(King_Move);
-						Is_Not_Check := not Is_Check(Player);
-
-						-- Revert move
-						Revert_Board(Save);
-
-						if Is_Not_Check then
-							return False;
-						end if;
-					end loop;
-				end loop;
-
-				return True;
-			end;
+		if Player = Black then
+			Fullmove := Fullmove + 1;
 		end if;
 
-		return False;
-    end End_Turn;
+		Player := (if Player = White then Black else White);
+	end End_Turn;
 
     procedure Print is
     begin

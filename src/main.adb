@@ -1,106 +1,115 @@
+with Gdk.Event;       use Gdk.Event;
+
+with Gtk.Box;         use Gtk.Box;
+with Gtk.Label;       use Gtk.Label;
+with Gtk.Widget;      use Gtk.Widget;
+with Gtk.Main;
+with Gtk.Window;      use Gtk.Window;
+
+procedure Main is
+
+   Win   : Gtk_Window;
+   Label : Gtk_Label;
+   Box   : Gtk_Vbox;
+
+   function Delete_Event_Cb
+     (Self  : access Gtk_Widget_Record'Class;
+      Event : Gdk.Event.Gdk_Event)
+      return Boolean;
+
+   ---------------------
+   -- Delete_Event_Cb --
+   ---------------------
+
+   function Delete_Event_Cb
+     (Self  : access Gtk_Widget_Record'Class;
+      Event : Gdk.Event.Gdk_Event)
+      return Boolean
+   is
+      pragma Unreferenced (Self, Event);
+   begin
+      Gtk.Main.Main_Quit;
+      return True;
+   end Delete_Event_Cb;
+
+begin
+   --  Initialize GtkAda.
+   Gtk.Main.Init;
+
+   --  Create a window with a size of 400x400
+   Gtk_New (Win);
+   Win.Set_Default_Size (400, 400);
+
+   --  Create a box to organize vertically the contents of the window
+   Gtk_New_Vbox (Box);
+   Win.Add (Box);
+
+   --  Add a label
+   Gtk_New (Label, "Hello world.");
+   Box.Add (Label);
+
+   -- Stop the Gtk process when closing the window
+   Win.On_Delete_Event (Delete_Event_Cb'Unrestricted_Access);
+
+   --  Show the window and present it
+   Win.Show_All;
+   Win.Present;
+
+   --  Start the Gtk+ main loop
+   Gtk.Main.Main;
+end Main;
+
+
 with Ada.Text_IO; use Ada.Text_IO;
 with Chess; use Chess;
 with Move; use Move;
 
-with Ada.Command_Line; use Ada.Command_Line;
-
 procedure main is
+    Str     : String (1 .. 80);
+    Last    : Natural;
+
 	Move : Move_Type;
 
-    function Check_Move(Str : String) return Boolean is
+    function check_input return Boolean is
     begin
-        if Str'Length /= 4 then
+        Ada.Text_IO.Get_Line (Str, Last);
+
+        if Str(1 .. Last)'Length /= 4 then
             return False;
         end if;
 
-		if     not ('a' <= Str(Str'First + 0) and Str(Str'First + 0) <= 'h')
-			or not ('0' <= Str(Str'First + 1) and Str(Str'First + 1) <= '8')
-			or not ('a' <= Str(Str'First + 2) and Str(Str'First + 2) <= 'h')
-			or not ('0' <= Str(Str'First + 3) and Str(Str'First + 3) <= '8') then
-			return False;
-		end if;
-
-	    Move.Start.X := Character'Pos(Str(Str'First + 0)) - 96;
-        Move.Start.Y := Character'Pos(Str(Str'First + 1)) - 48;
-        Move.Target.X := Character'Pos(Str(Str'First + 2)) - 96;
-        Move.Target.Y := Character'Pos(Str(Str'First + 3)) - 48;
+	    Move.Start.X := Character'Pos(Str(1)) - Character'Pos('A') + 1;
+        Move.Start.Y := Range_Board(Integer'Value(Str(2 .. 2)));
+        Move.Target.X := Character'Pos(Str(3)) - Character'Pos('A') + 1;
+        Move.Target.Y := Range_Board(Integer'Value(Str(4 .. 4)));
 
         return True;
     exception
-        when others => return False;
-    end Check_Move;
-
-	function get_player_name(Player : in Player_Type) return String is
-	begin
-		return (if Player = White then "White" else "Black");
-	end get_player_name;
-
-	function Check_Validity(Str : String) return Boolean is
-	begin
-		if Str = "O-O" then
-			if not is_valid_castling(Kingside, Player) then
-				Put_Line("Invalid Kingside Castle : " & Str);
-				return False;
-			end if;
-
-			Move_Castling(Kingside, Player);
-		elsif Str = "O-O-O" then
-			if not is_valid_castling(Queenside, Player) then
-				Put_Line("Invalid Queenside Castle : " & Str);
-				return False;
-			end if;
-
-			Move_Castling(Queenside, Player);
-		elsif Check_Move(Str) then
-			if not is_valid_move(Move, Player) then
-				Put_Line("Invalid move : " & Str);
-				return False;
-			end if;
-
-			move_piece(Move);
-		else
-			Put_Line("Invalid input : " & Str & ". Use help for more info.");
-			return False;
-		end if;
-
-		return True;
-	end Check_Validity;
+            when others => return False;
+    end check_input;
 begin
     Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
     Put_Line("Welcome to Adachess");
 
-	for I in 1 .. Argument_Count loop
-		if Argument(I) = "-d" or Argument(I) = "--debug" then
-			Set_Debug(True);
-		end if;
-	end loop;
-
-    while True loop
-		Put_Line("");
-        Put_Line(get_player_name(Player) & " to move:");
+    while(True) loop -- is_game_end()
+        Put_Line((if Player = White then "White" else "Black") & " to move:");
 	    Print;
-		Put_Line("");
 
-		declare
-			Move_Str : String := Get_Line;
-		begin
-			if Move_Str /= "" then
-				if Move_Str = "exit" then
-					exit;
-				elsif Move_Str = "h" or Move_Str = "help" then
-					Put_Line("List of commands :");
-					Put_Line("    help: print the list of commands");
-					Put_Line("    quit: quit the game");
-					Put_Line("    [a-h][1-8][a-h][1-8]: move a piece");
-					Put_Line("    O-O: perform a Kingside Castling");
-					Put_Line("    O-O-O: perform a Queenside Castling");
-				elsif Check_Validity(Move_Str) then
-					if End_Turn then
-						Put_Line((if Player = Black then "White" else "Black") & " won.");
-						exit;
-					end if;
-				end if;
-			end if;
-		end;
+        -- TODO: take care of castling
+
+        if not check_input then
+            if Str(1 .. 4) = "quit" then
+                Put_Line((if Player = White then "Black" else "White") & " win ! exiting game.");
+                exit;
+            end if;
+            Put_Line("Wrong input, Usage: E2E4.");
+        elsif not is_valid_move(Move, Player) then
+            Put_Line("Input a valid move.");
+        else
+            -- TODO: take care of cases where king is check
+            -- TODO: transform a pawn into queen if pawn at last row
+            move_piece(Move);
+			End_Turn;
+        end if;
     end loop;
 end main;
