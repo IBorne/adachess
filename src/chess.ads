@@ -2,8 +2,6 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 package Chess is
 
-    type Buffer_Size is range 1 .. 256;
-
     type Player_Type is (Black,
                          White,
                          Unknown);
@@ -23,7 +21,7 @@ package Chess is
     end record;
 
     type Range_Board is range -1 .. 10;
-	subtype Range_Inner_Board is Range_Board range 1 .. 8;
+    subtype Range_Inner_Board is Range_Board range 1 .. 8;
 
     type Coordinate is record
         X, Y : Range_Board := 1;
@@ -35,6 +33,22 @@ package Chess is
         Start, Target   : Coordinate;
     end record;
 
+	type Side_Type is (Kingside, Queenside);
+
+	type Board_Save is record
+		Player              : Player_Type;
+	    White_Castling_Q    : Boolean;
+    	White_Castling_K    : Boolean;
+    	Black_Castling_Q    : Boolean;
+    	Black_Castling_K    : Boolean;
+    	Is_Enemy_Check      : Boolean;
+    	En_Passant_Target   : Coordinate;
+		Board               : Board_Type;
+	    Halfmove            : Natural;
+    	Halfmove_Done       : Boolean;
+    	Fullmove            : Natural;
+	end record;
+
     -- type Move_List_Type is array (Buffer_Size) of Move_Type; --
 
     Player              : Player_Type;
@@ -42,24 +56,34 @@ package Chess is
     White_Castling_K    : Boolean;
     Black_Castling_Q    : Boolean;
     Black_Castling_K    : Boolean;
+    Is_Enemy_Check      : Boolean;
     En_Passant_Target   : Coordinate;
     -- Move_List           : Move_List_Type; --
+
+	procedure Set_Debug(Debug : Boolean);
+	procedure Print_Debug(Str : String);
 
     procedure Read_Fen(Line : in String; Last : in Natural);
     procedure Load_Fen(Filename : in String);
     function Write_Fen return String;
     procedure Save_Fen(Filename : in String);
+	procedure Check_Promote_Pawn(Pos : in Coordinate);
     procedure Move_Piece(Move : in Move_Type);
+	procedure Move_Castling(Side : in Side_Type; Player : in Player_Type);
     -- procedure Undo_Move; --
+    function Is_Check(Player : in Player_Type) return Boolean;
     function Get_Piece_At(Position : in Coordinate) return Cell_Type;
-	procedure End_Turn;
+	function Save_Board return Board_Save;
+	procedure Revert_Board(Save : Board_Save);
+    function End_Turn return Boolean;
     procedure Print;
 
 private
 
     Board               : Board_Type;
     Halfmove            : Natural := 0;
-	Halfmove_Done		: Boolean := True;
+    Halfmove_Done       : Boolean := True;
     Fullmove            : Natural := 1;
+	Debug				: Boolean := False;
 
 end Chess;
