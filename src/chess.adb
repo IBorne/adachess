@@ -7,10 +7,20 @@ package body Chess is
 		Chess.Debug := Debug;
 	end Set_Debug;
 
+    procedure Simulate_Enter is
+    begin
+        Chess.Simulate := Chess.Simulate + 1;
+    end Simulate_Enter;
+
+    procedure Simulate_Leave is
+    begin
+        Chess.Simulate := Chess.Simulate - 1;
+    end Simulate_Leave;
+
 	procedure Print_Debug(Str : String) is
 	begin
-		if Chess.Debug then
-			Put_Line((if Player = White then "White" else "Black") & " -"
+		if Chess.Simulate = 0 and Chess.Debug then
+			Put_Line(Get_Player_Name(Player) & " -"
 				   & Integer'Image(Fullmove) & " : " & Str);
 		end if;
 	end Print_Debug;
@@ -40,6 +50,8 @@ package body Chess is
         return (if Player = White then Black else White);
     end Get_Enemy;
 
+    --------------- Check detection ---------------
+
     -- TODO: factorize (if possible)
     function Is_King_Check(Pos : in Coordinate; Enemy : in Player_Type) return Boolean is
         function Is_Enemy_Queen_Rook(Pos : in Coordinate; Enemy : in Player_Type) return Boolean is
@@ -59,11 +71,12 @@ package body Chess is
         if Pos.Y > Range_Inner_Board'First then
             for Y in reverse Range_Inner_Board'First .. Pos.Y - 1 loop
                 if Is_Enemy_Queen_Rook((Pos.X, Y), Enemy) then
-					Print_Debug("Check by Queen or Rook under the king ("
-								& Integer'Image(Integer(Pos.X)) & ","
-								& Integer'Image(Integer(Pos.Y)) & " ) -> ("
-								& Integer'Image(Integer(Pos.X)) & ","
-								& Integer'Image(Integer(Y)) & " )");
+					Print_Debug("Check by " & Get_Player_Name(Enemy)
+                              & " Queen or Rook under the king ("
+							  & Integer'Image(Integer(Pos.X)) & ","
+							  & Integer'Image(Integer(Y)) & " ) -> ("
+							  & Integer'Image(Integer(Pos.X)) & ","
+							  & Integer'Image(Integer(POs.Y)) & " )");
                     return True;
                 end if;
 
@@ -75,11 +88,12 @@ package body Chess is
         if Pos.Y < Range_Inner_Board'Last then
             for Y in Pos.Y + 1 .. Range_Inner_Board'Last loop
                 if Is_Enemy_Queen_Rook((Pos.X, Y), Enemy) then
-					Print_Debug("Check by Queen or Rook above the king ("
+					Print_Debug("Check by " & Get_Player_Name(Enemy)
+                              & " Queen or Rook above the king ("
 							  & Integer'Image(Integer(Pos.X)) & ","
-							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
+							  & Integer'Image(Integer(Y)) & " ) -> ("
 							  & Integer'Image(Integer(Pos.X)) & ","
-							  & Integer'Image(Integer(Y)) & " )");
+							  & Integer'Image(Integer(Pos.Y)) & " )");
                     return True;
                 end if;
 
@@ -91,10 +105,11 @@ package body Chess is
         if Pos.X > Range_Inner_Board'First then
             for X in reverse Range_Inner_Board'First .. Pos.X - 1 loop
                 if Is_Enemy_Queen_Rook((X, Pos.Y), Enemy) then
-					Print_Debug("Check by Queen or Rook at the left of the king ("
-							  & Integer'Image(Integer(Pos.X)) & ","
-							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
+					Print_Debug("Check by " & Get_Player_Name(Enemy)
+                              & " Queen or Rook at the left of the king ("
 							  & Integer'Image(Integer(X)) & ","
+							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
+							  & Integer'Image(Integer(Pos.X)) & ","
 							  & Integer'Image(Integer(Pos.Y)) & " )");
                     return True;
                 end if;
@@ -108,9 +123,9 @@ package body Chess is
             for X in Pos.X + 1 .. Range_Inner_Board'Last loop
                 if Is_Enemy_Queen_Rook((X, Pos.Y), Enemy) then
 					Print_Debug("Check by Queen or Rook at the right of the king ("
-							  & Integer'Image(Integer(Pos.X)) & ","
-							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
 							  & Integer'Image(Integer(X)) & ","
+							  & Integer'Image(Integer(Pos.Y)) & " ) -> ("
+							  & Integer'Image(Integer(Pos.X)) & ","
 							  & Integer'Image(Integer(Pos.Y)) & " )");
                     return True;
                 end if;
@@ -119,7 +134,7 @@ package body Chess is
             end loop;
         end if;
 
-        -- TODO: Queen, Bishop
+        -- FIXME: Queen, Bishop
         -- Diagonal upper left
         -- Diagonal upper right
         -- Diagonal lower left
@@ -134,7 +149,7 @@ package body Chess is
             or Get_Piece_At((Pos.X - 2, Pos.Y + 1)) = (Knight, Enemy)
             or Get_Piece_At((Pos.X + 2, Pos.Y - 1)) = (Knight, Enemy)
             or Get_Piece_At((Pos.X + 2, Pos.Y + 1)) = (Knight, Enemy) then
-			Print_Debug("Check by Knight");
+			Print_Debug("Check by " & Get_Player_Name(Enemy) & " Knight");
             return True;
         end if;
 
@@ -147,14 +162,14 @@ package body Chess is
             or Get_Piece_At((Pos.X - 1, Pos.Y + 1)) = (King, Enemy)
             or Get_Piece_At((Pos.X + 0, Pos.Y + 1)) = (King, Enemy)
             or Get_Piece_At((Pos.X + 1, Pos.Y + 1)) = (King, Enemy) then
-			Print_Debug("Check by King");
+			Print_Debug("Check by " & Get_Player_Name(Enemy) & " King");
             return True;
         end if;
 
         -- Pawn
         if     Get_Piece_At((Pos.X - 1, Pawn_Y)) = (Pawn, Enemy)
             or Get_Piece_At((Pos.X + 1, Pawn_Y)) = (Pawn, Enemy) then
-			Print_Debug("Check by Pawn");
+			Print_Debug("Check by " & Get_Player_Name(Enemy) & " Pawn");
             return True;
         end if;
 
@@ -175,6 +190,8 @@ package body Chess is
 
         return False;
     end Is_Check;
+
+    --------------- FEN Management ---------------
 
     procedure Place(C : in Character; Position : in out Coordinate) is
         Increment               : Range_Board := 1;
@@ -465,28 +482,27 @@ package body Chess is
             Halfmove_Done := False;
         end if;
 
-		-- FIXME:
---		if Castling_K or Castling_Q then
---			case Get_Piece_At(Move.Start).Piece is
---				when King =>
---					Castling_K := False;
---					Castling_Q := False;
+		if Castling_K or Castling_Q then
+			case Get_Piece_At(Move.Start).Piece is
+				when King =>
+					Castling_K := False;
+					Castling_Q := False;
 
---				when Rook =>
---					if Move.Start.X = 1 then Castling_Q := False; end if;
---					if Move.Start.Y = 8 then Castling_K := False; end if;
+				when Rook =>
+					if Move.Start.X = 1 then Castling_Q := False; end if;
+					if Move.Start.X = 8 then Castling_K := False; end if;
 
---				when others => Null;
---			end case;
+				when others => Null;
+			end case;
 
---			if Player = White then
---				White_Castling_K := Castling_K;
---				White_Castling_Q := Castling_Q;
---			else
---				Black_Castling_K := Castling_K;
---				Black_Castling_Q := Castling_Q;
---			end if;
---		end if;
+			if Player = White then
+				White_Castling_K := Castling_K;
+				White_Castling_Q := Castling_Q;
+			else
+				Black_Castling_K := Castling_K;
+				Black_Castling_Q := Castling_Q;
+			end if;
+		end if;
 
         Board(Move.Target.X, Move.Target.Y) := Get_Piece_At(Move.Start);
         Board(Move.Start.X, Move.Start.Y) := (Empty, Unknown);
@@ -540,6 +556,162 @@ package body Chess is
     	Chess.Fullmove            := Save.Fullmove;
 	end Revert_Board;
 
+    --------------- Checkmate detection ---------------
+
+    function Get_Piece_Name(Piece : Piece_Type) return String is
+    begin
+        case Piece is
+            when Pawn => return "Pawn";
+            when Rook => return "Rook";
+            when Knight => return "Knight";
+            when Bishop => return "Bishop";
+            when Queen => return "Queen";
+            when King => return "King";
+            when Empty | Forbidden => return "X";
+        end case;
+    end Get_Piece_Name;
+
+    -- this function is always short-circuit'ed as it can lead to invalid
+    -- states if the move is not valid (ex: King disappear)
+    function Check_Not_Checkmate(Pos : in Coordinate; Target : in Coordinate;
+                                 Player : in Player_Type; Save : in Board_Save) return Boolean is
+        Is_Still_Check : Boolean;
+    begin
+        Move_Piece((Pos, Target));
+        Is_Still_Check := Is_Check(Player);
+        Revert_Board(Save);
+
+        return Is_Still_Check = False;
+    end Check_Not_Checkmate;
+
+    function Avoid_Checkmate_Pawn(X : in Range_Board; Y : in Range_Board;
+                               Player : in Player_Type; Save : in Board_Save) return Boolean is
+        Y_1 : constant Range_Board := (if Player = White then Y + 1 else Y - 1);
+        Y_2 : constant Range_Board := (if Player = White then Y + 2 else Y - 2);
+
+        Positions : Coordinate_Array := ((X - 1, Y_1), (X, Y_1), (X + 1, Y_1), (X, Y_2));
+    begin
+        for Pos of Positions loop
+            if is_valid_move(((X, Y), Pos), Player) and then Check_Not_Checkmate((X, Y), Pos, Player, Save) then
+                return True;
+            end if;
+        end loop;
+
+        return False;
+    end Avoid_Checkmate_Pawn;
+
+    function Avoid_Checkmate_Rook(X : in Range_Board; Y : in Range_Board;
+                                 Player : in Player_Type; Save : Board_Save) return Boolean is
+    begin
+        if Range_Inner_Board'First < X then
+            for Pos_X in reverse Range_Inner_Board'First .. X - 1 loop
+                if is_valid_move(((X, Y), (Pos_X, Y)), Player) and then Check_Not_Checkmate((X, Y), (Pos_X, Y), Player, Save) then
+                    return True;
+                end if;
+            end loop;
+        end if;
+
+        if X < Range_Inner_Board'Last then
+            for Pos_X in X + 1 .. Range_Inner_Board'Last loop
+                if is_valid_move(((X, Y), (Pos_X, Y)), Player) and then Check_Not_Checkmate((X, Y), (Pos_X, Y), Player, Save) then
+                    return True;
+                end if;
+            end loop;
+        end if;
+
+        if Range_Inner_Board'First < Y then
+            for Pos_Y in Range_Inner_Board'First .. Y - 1 loop
+                if is_valid_move(((X, Y), (X, Pos_Y)), Player) and then Check_Not_Checkmate((X, Y), (X, Pos_Y), Player, Save) then
+                    return True;
+                end if;
+            end loop;
+        end if;
+
+        if Y < Range_Inner_Board'Last then
+            for Pos_Y in reverse Y + 1 .. Range_Inner_Board'Last loop
+                if is_valid_move(((X, Y), (X, Pos_Y)), Player) and then Check_Not_Checkmate((X, Y), (X, Pos_Y), Player, Save) then
+                    return True;
+                end if;
+            end loop;
+        end if;
+
+        return False;
+    end Avoid_Checkmate_Rook;
+
+    function Avoid_Checkmate_Knight(X : in Range_Board; Y : in Range_Board;
+                                    Player : in Player_Type; Save : in Board_Save) return Boolean is
+        Positions : Coordinate_Array := ((X - 2, Y - 1), (X - 2, Y + 1), (X - 1, Y - 2), (X - 1, Y + 2),
+                                         (X + 1, Y - 2), (X + 1, Y + 2), (X + 2, Y - 1), (X + 2, Y + 1));
+    begin
+        for Pos of Positions loop
+            if is_valid_move(((X, Y), Pos), Player) and then Check_Not_Checkmate((X, Y), Pos, Player, Save) then
+                return True;
+            end if;
+        end loop;
+
+        return False;
+    end Avoid_Checkmate_Knight;
+
+    function Avoid_Checkmate_Bishop(X : in Range_Board; Y : in Range_Board;
+                                    Player : in Player_Type; Save : in Board_Save) return Boolean is
+    begin
+        -- FIXME
+
+        return False;
+    end Avoid_Checkmate_Bishop;
+
+    function Avoid_Checkmate_Queen(X : in Range_Board; Y : in Range_Board;
+                                   Player : in Player_Type; Save : in Board_Save) return Boolean is
+    begin
+        return Avoid_Checkmate_Bishop(X, Y, Player, Save) or Avoid_Checkmate_Rook(X, Y, Player, Save);
+    end Avoid_Checkmate_Queen;
+
+    function Avoid_Checkmate_King(X : in Range_Board; Y : in Range_Board;
+                                  Player : in Player_Type; Save : in Board_Save) return Boolean is
+        Positions : Coordinate_Array := ((X - 1, Y - 1), (X, Y - 1), (X + 1, Y - 1),
+                                         (X - 1, Y),     (X, Y),     (X + 1, Y),
+                                         (X - 1, Y + 1), (X, Y + 1), (X + 1, Y + 1));
+    begin
+        for Pos of Positions loop
+            if is_valid_move(((X, Y), Pos), Player) and then Check_Not_Checkmate((X, Y), Pos, Player, Save) then
+                return True;
+            end if;
+        end loop;
+
+        return False;
+    end Avoid_Checkmate_King;
+
+    function Is_Checkmate_Avoided(Player : in Player_Type) return Boolean is
+		Save : Board_Save := Save_Board;
+        Check_Avoided : Boolean;
+    begin
+        Simulate_Enter;
+
+        for Y in Range_Inner_Board loop
+            for X in Range_Inner_Board loop
+                if Get_Piece_At((X, Y)).Player = Player then
+                    case Get_Piece_At((X, Y)).Piece is
+                        when Pawn   => Check_Avoided := Avoid_Checkmate_Pawn(X, Y, Player, Save);
+                        when Rook   => Check_Avoided := Avoid_Checkmate_Rook(X, Y, Player, Save);
+                        when Knight => Check_Avoided := Avoid_Checkmate_Knight(X, Y, Player, Save);
+                        when Bishop => Check_Avoided := Avoid_Checkmate_Bishop(X, Y, Player, Save);
+                        when Queen  => Check_Avoided := Avoid_Checkmate_Queen(X, Y, Player, Save);
+                        when King   => Check_Avoided := Avoid_Checkmate_King(X, Y, Player, Save);
+                        when Empty  | Forbidden => return False;
+                    end case;
+
+                    if Check_Avoided then
+                        Simulate_Leave;
+                        return True;
+                    end if;
+                end if;
+            end loop;
+        end loop;
+
+        Simulate_Leave;
+        return False;
+    end Is_Checkmate_Avoided;
+
     function End_Turn return Boolean is
     begin
         Halfmove := (if Halfmove_Done then Halfmove + 1 else 0);
@@ -551,47 +723,11 @@ package body Chess is
 
         Player := Get_Enemy(Player);
 
+        -- Add 50 moves rule (Halfmove = 50)
+
         Is_Enemy_Check := Is_Check(Player);
-		if Is_Enemy_Check then
-			declare
-				Is_Not_Check : Boolean := False;
-				Save : Board_Save;
-				King_Move : Move_Type;
-			begin
-				for Y in Range_Inner_Board loop
-					for X in Range_Inner_Board loop
-						if Get_Piece_At((X, Y)) = (King, Player) then
-							King_Move.Start := (X, Y);
-						end if;
-					end loop;
-				end loop;
-
-				for Y in Integer range -1 .. 1 loop
-					for X in Integer range -1 .. 1 loop
-						-- Save board
-						Save := Save_Board;
-
-						-- Move
-						King_Move.Target := (Range_Inner_Board(Integer(King_Move.Start.X) + X),
-											 Range_Inner_Board(Integer(King_Move.Start.Y) + Y));
-						if not is_valid_move(King_Move, Player) then
-							exit;
-						end if;
-
-						Move_Piece(King_Move);
-						Is_Not_Check := not Is_Check(Player);
-
-						-- Revert move
-						Revert_Board(Save);
-
-						if Is_Not_Check then
-							return False;
-						end if;
-					end loop;
-				end loop;
-
-				return True;
-			end;
+		if Is_Enemy_Check and then Is_Checkmate_Avoided(Player) = False then
+            return True;
 		end if;
 
 		return False;
@@ -615,5 +751,10 @@ package body Chess is
             end loop;
         end if;
     end Print;
+
+	function Get_Player_Name(Player : in Player_Type) return String is
+	begin
+		return (if Player = White then "White" else "Black");
+	end Get_Player_Name;
 
 end Chess;
