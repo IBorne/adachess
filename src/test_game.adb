@@ -1,5 +1,6 @@
 with Ada.Command_Line; use Ada.Command_Line;
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Exceptions; use Ada.Exceptions;
 
 with Chess; use Chess;
 with Move; use Move;
@@ -89,6 +90,11 @@ begin
 						end if;
 
 						Line := Line + 1;
+
+					exception
+						when Err: Constraint_Error =>
+							Print_Debug(Exception_Message(Err));
+							Reraise_Occurrence(Err);
 					end;
 				end loop;
 
