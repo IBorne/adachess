@@ -9,5 +9,5 @@ package Move is
     function is_valid_king(dx : in Integer; dy : in Integer) return Boolean;
     function valid_piece_move(Move : in Move_Type; Player : in Player_Type) return Boolean;
     function is_valid_move(Move : in Move_Type; Player : in Player_Type) return Boolean;
-	function is_valid_castling(Side : in Side_Type; Player : in Player_Type) return Boolean;
+    function is_valid_castling(Side : in Side_Type; Player : in Player_Type) return Boolean;
 end Move;
