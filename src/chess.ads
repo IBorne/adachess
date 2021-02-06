@@ -27,27 +27,29 @@ package Chess is
         X, Y : Range_Board := 1;
     end record;
 
+    type Coordinate_Array is array (Positive range <>) of Coordinate;
+
     type Board_Type is array (Range_Board, Range_Board) of Cell_Type;
 
     type Move_Type is record
         Start, Target   : Coordinate;
     end record;
 
-	type Side_Type is (Kingside, Queenside);
+    type Side_Type is (Kingside, Queenside);
 
-	type Board_Save is record
-		Player              : Player_Type;
-	    White_Castling_Q    : Boolean;
-    	White_Castling_K    : Boolean;
-    	Black_Castling_Q    : Boolean;
-    	Black_Castling_K    : Boolean;
-    	Is_Enemy_Check      : Boolean;
-    	En_Passant_Target   : Coordinate;
-		Board               : Board_Type;
-	    Halfmove            : Natural;
-    	Halfmove_Done       : Boolean;
-    	Fullmove            : Natural;
-	end record;
+    type Board_Save is record
+        Player              : Player_Type;
+        White_Castling_Q    : Boolean;
+        White_Castling_K    : Boolean;
+        Black_Castling_Q    : Boolean;
+        Black_Castling_K    : Boolean;
+        Is_Enemy_Check      : Boolean;
+        En_Passant_Target   : Coordinate;
+        Board               : Board_Type;
+        Halfmove            : Natural;
+        Halfmove_Done       : Boolean;
+        Fullmove            : Natural;
+    end record;
 
     -- type Move_List_Type is array (Buffer_Size) of Move_Type; --
 
@@ -60,23 +62,26 @@ package Chess is
     En_Passant_Target   : Coordinate;
     -- Move_List           : Move_List_Type; --
 
-	procedure Set_Debug(Debug : Boolean);
-	procedure Print_Debug(Str : String);
+    procedure Set_Debug(Debug : Boolean);
+    procedure Print_Debug(Str : String);
+    procedure Simulate_Enter;
+    procedure Simulate_Leave;
 
     procedure Read_Fen(Line : in String; Last : in Natural);
     procedure Load_Fen(Filename : in String);
     function Write_Fen return String;
     procedure Save_Fen(Filename : in String);
-	procedure Check_Promote_Pawn(Pos : in Coordinate);
+    procedure Check_Promote_Pawn(Pos : in Coordinate);
     procedure Move_Piece(Move : in Move_Type);
-	procedure Move_Castling(Side : in Side_Type; Player : in Player_Type);
+    procedure Move_Castling(Side : in Side_Type; Player : in Player_Type);
     -- procedure Undo_Move; --
     function Is_Check(Player : in Player_Type) return Boolean;
     function Get_Piece_At(Position : in Coordinate) return Cell_Type;
-	function Save_Board return Board_Save;
-	procedure Revert_Board(Save : Board_Save);
+    function Save_Board return Board_Save;
+    procedure Revert_Board(Save : Board_Save);
     function End_Turn return Boolean;
     procedure Print;
+    function Get_Player_Name(Player : in Player_Type) return String;
 
 private
 
@@ -84,6 +89,8 @@ private
     Halfmove            : Natural := 0;
     Halfmove_Done       : Boolean := True;
     Fullmove            : Natural := 1;
-	Debug				: Boolean := False;
+
+    Debug               : Boolean := False;
+    Simulate            : Natural := 0;
 
 end Chess;
