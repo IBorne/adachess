@@ -28,7 +28,7 @@ f8e7
 d1e2
 c8e6
 
-e2e3
+c2c3
 d4c3
 
 b1c3
@@ -55,7 +55,7 @@ a5g5
 e2f3
 b7b5
 
-h2h4
+h3h4
 g5d2
 
 e1d1
