@@ -454,16 +454,16 @@ package body Chess is
         Last    : Natural;
     begin
         if Cell.Piece = Pawn and Pos.Y = (if Cell.Player = White then 8 else 1) then
-            while True loop
+            loop
                 Put("Enter the piece to promote the pawn into (Q/N/R/B) : ");
                 Get_Line(Str, Last);
 
                 if Last = 1 then
                     case Str(1) is
-                        when 'Q' => Board(Pos.X, Pos.Y).Piece := Queen;     return;
-                        when 'N' => Board(Pos.X, Pos.Y).Piece := Knight;    return;
-                        when 'R' => Board(Pos.X, Pos.Y).Piece := Rook;      return;
-                        when 'B' => Board(Pos.X, Pos.Y).Piece := Bishop;    return;
+                        when 'Q' => Board(Pos.X, Pos.Y).Piece := Queen;     exit;
+                        when 'N' => Board(Pos.X, Pos.Y).Piece := Knight;    exit;
+                        when 'R' => Board(Pos.X, Pos.Y).Piece := Rook;      exit;
+                        when 'B' => Board(Pos.X, Pos.Y).Piece := Bishop;    exit;
                         when others => Null;
                     end case;
                 end if;
