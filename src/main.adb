@@ -30,11 +30,6 @@ procedure main is
         when others => return False;
     end Check_Move;
 
-	function get_player_name(Player : in Player_Type) return String is
-	begin
-		return (if Player = White then "White" else "Black");
-	end get_player_name;
-
 	function Check_Validity(Str : String) return Boolean is
 	begin
 		if Str = "O-O" then
@@ -90,7 +85,7 @@ begin
 				elsif Move_Str = "h" or Move_Str = "help" then
 					Put_Line("List of commands :");
 					Put_Line("    help: print the list of commands");
-					Put_Line("    quit: quit the game");
+					Put_Line("    exit: exit the game");
 					Put_Line("    [a-h][1-8][a-h][1-8]: move a piece");
 					Put_Line("    O-O: perform a Kingside Castling");
 					Put_Line("    O-O-O: perform a Queenside Castling");
