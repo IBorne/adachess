@@ -66,6 +66,7 @@ package Chess is
     procedure Print_Debug(Str : String);
     procedure Simulate_Enter;
     procedure Simulate_Leave;
+    function Simulated return Boolean;
 
     procedure Read_Fen(Line : in String; Last : in Natural);
     procedure Load_Fen(Filename : in String);

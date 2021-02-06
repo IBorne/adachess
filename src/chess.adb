@@ -17,6 +17,11 @@ package body Chess is
         Chess.Simulate := Chess.Simulate - 1;
     end Simulate_Leave;
 
+    function Simulated return Boolean is
+    begin
+        return Chess.Simulate /= 0;
+    end Simulated;
+
     procedure Print_Debug(Str : String) is
     begin
         if Chess.Simulate = 0 and Chess.Debug then
@@ -477,37 +482,41 @@ package body Chess is
         Castling_K : Boolean := (if Player = White then White_Castling_K else Black_Castling_K);
         Castling_Q : Boolean := (if Player = White then White_Castling_Q else Black_Castling_Q);
     begin
-        if Get_Piece_At(Move.Start).Piece = Pawn
-            or Get_Piece_At(Move.Target).Piece /= Empty then
-            Halfmove_Done := False;
-        end if;
+        if not Simulated then
+            if Get_Piece_At(Move.Start).Piece = Pawn
+                or Get_Piece_At(Move.Target).Piece /= Empty then
+                Halfmove_Done := False;
+            end if;
 
-        if Castling_K or Castling_Q then
-            case Get_Piece_At(Move.Start).Piece is
-                when King =>
-                    Castling_K := False;
-                    Castling_Q := False;
+            if Castling_K or Castling_Q then
+                case Get_Piece_At(Move.Start).Piece is
+                    when King =>
+                        Castling_K := False;
+                        Castling_Q := False;
 
-                when Rook =>
-                    if Move.Start.X = 1 then Castling_Q := False; end if;
-                    if Move.Start.X = 8 then Castling_K := False; end if;
+                    when Rook =>
+                        if Move.Start.X = 1 then Castling_Q := False; end if;
+                        if Move.Start.X = 8 then Castling_K := False; end if;
 
-                when others => Null;
-            end case;
+                    when others => Null;
+                end case;
 
-            if Player = White then
-                White_Castling_K := Castling_K;
-                White_Castling_Q := Castling_Q;
-            else
-                Black_Castling_K := Castling_K;
-                Black_Castling_Q := Castling_Q;
+                if Player = White then
+                    White_Castling_K := Castling_K;
+                    White_Castling_Q := Castling_Q;
+                else
+                    Black_Castling_K := Castling_K;
+                    Black_Castling_Q := Castling_Q;
+                end if;
             end if;
         end if;
 
         Board(Move.Target.X, Move.Target.Y) := Get_Piece_At(Move.Start);
         Board(Move.Start.X, Move.Start.Y) := (Empty, Unknown);
 
-        Check_Promote_Pawn(Move.Target);
+        if not Simulated then
+            Check_Promote_Pawn(Move.Target);
+        end if;
     end Move_Piece;
 
     procedure Move_Castling(Side : in Side_Type; Player : in Player_Type) is
