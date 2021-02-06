@@ -227,33 +227,40 @@ package body Move is
             return Is_Own_Check;
         end check_castling_at;
     begin
+        Simulate_Enter;
+
         -- You cannot castle if your king or your rook moved
         if     (Side = Kingside and Castling_K = False)
             or (Side = Queenside and Castling_Q = False) then
             Print_Debug("You can't castle anymore");
+            Simulate_Leave;
             return False;
         end if;
 
         -- You cannot castle out of check
         if Is_Enemy_Check then
             Print_Debug("You cannot castle out of check");
+            Simulate_Leave;
             return False;
         end if;
 
         if Side = Kingside then
             for X in 6..7 loop
                 if check_castling_at((Range_Board(X), Y), Player) then
+                    Simulate_Leave;
                     return False;
                 end if;
             end loop;
         else
             for X in reverse 3..4 loop
                 if check_castling_at((Range_Board(X), Y), Player) then
+                    Simulate_Leave;
                     return False;
                 end if;
             end loop;
         end if;
 
+        Simulate_Leave;
         return True;
     end is_valid_castling;
 end Move;
