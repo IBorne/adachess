@@ -60,19 +60,14 @@ Authors
 - Arthus Leroy
 - Brice Phelisse
 
-TODO:
-chess board..................[0]
+TODO
+----
 
-basic rule...................[0]
-
-basic rule...................[0]
-
-advanced move................[0]
-
-advanced rule................[0]
-
-graphical interface..........[X]
-
-graphical move highlight.....[X]
-
-button command...............[X]
+chess board..................[0]  
+basic rule...................[0]  
+basic rule...................[0]  
+advanced move................[0]  
+advanced rule................[0]  
+graphical interface..........[X]  
+graphical move highlight.....[X]  
+button command...............[X]  
