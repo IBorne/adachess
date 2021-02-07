@@ -7,6 +7,20 @@ package body Chess is
         Chess.Debug := Debug;
     end Set_Debug;
 
+    procedure Set_Print(Print_Debug_Var : Boolean) is
+    begin
+	Chess.Print_Debug_Var := Print_Debug_Var;
+    end Set_Print;
+
+    procedure Print_Board_Debug is
+    begin
+	if (Chess.Print_Debug_Var) then
+		Put_Line("");
+		Print;
+		Put_Line("");
+	end if;	
+    end Print_Board_Debug;
+
     procedure Simulate_Enter is
     begin
         Chess.Simulate := Chess.Simulate + 1;

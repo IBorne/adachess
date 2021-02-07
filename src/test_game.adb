@@ -62,6 +62,8 @@ begin
 	for I in 1 .. Argument_Count loop
 		if Argument(I) = "--debug" or Argument(I) = "-d" then
 			Set_Debug(True);
+		elsif Argument(I) = "--print" or Argument(I) = "-p" then
+		       Set_Print(True);	
 		else
 			Unused_Bool := Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
 
@@ -78,6 +80,7 @@ begin
 						Move : Move_Type := Parse_Move(Move_Str);
 					begin
 						if Move_Str /= "" then
+							Print_Board_Debug;
 							if Check_Validity(Move_Str, Move) then
 								if End_Turn then
 									Put_Line((if Player = Black then "White" else "Black") & " won.");

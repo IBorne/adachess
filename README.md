@@ -71,3 +71,7 @@ TODO
 - [ ] graphical interface
 - [ ] graphical move highlight
 - [ ] button command
+
+CERTIFICATION
+-------------
+[word document](https://epitafr-my.sharepoint.com/:w:/g/personal/brice_phelisse_epita_fr/EYkHz6J7iv1Ou9LxFu1IdBwB6wi3MBAnI_dO5uJ2WYIrrQ)
