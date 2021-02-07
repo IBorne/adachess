@@ -483,11 +483,13 @@ package body Chess is
         Castling_Q : Boolean := (if Player = White then White_Castling_Q else Black_Castling_Q);
     begin
         if not Simulated then
+            -- Not an halfmove if we move a pawn or take a piece
             if Get_Piece_At(Move.Start).Piece = Pawn
                 or Get_Piece_At(Move.Target).Piece /= Empty then
                 Halfmove_Done := False;
             end if;
 
+            -- Disable castling if king move or disable the side when a rook moves
             if Castling_K or Castling_Q then
                 case Get_Piece_At(Move.Start).Piece is
                     when King =>
@@ -509,11 +511,21 @@ package body Chess is
                     Black_Castling_Q := Castling_Q;
                 end if;
             end if;
+
+            -- Set En_Passant_Target if the move can trigger an En Passant
+            if Get_Piece_At(Move.Start).Piece = Pawn
+                and abs (Integer(Move.Target.Y) - Integer(Move.Start.Y)) = 2 then
+                En_Passant_Target := (Move.Start.X, (Move.Start.Y + Move.Target.Y) / 2);
+            else
+                En_Passant_Target := (0, 0);    -- should never be a valid location
+            end if;
         end if;
 
+        -- Actually move the piece
         Board(Move.Target.X, Move.Target.Y) := Get_Piece_At(Move.Start);
         Board(Move.Start.X, Move.Start.Y) := (Empty, Unknown);
 
+        -- Promote the piece if it needed
         if not Simulated then
             Check_Promote_Pawn(Move.Target);
         end if;
