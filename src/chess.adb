@@ -837,8 +837,14 @@ package body Chess is
         -- Add 50 moves rule (Halfmove = 50)
 
         Is_Enemy_Check := Is_Check(Player);
-        if Is_Enemy_Check and then Is_Checkmate_Avoided(Player) = False then
-            return True;
+        if Is_Enemy_Check then
+            if Is_Checkmate_Avoided(Player) then
+                Put_Line(Get_Player_Name(Player) & " is check");
+            else
+                Put_Line(Get_Player_Name(Player) & " is checkmate");
+                Player := Get_Enemy(Player);
+                return True;
+            end if;
         end if;
 
         return False;
