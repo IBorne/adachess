@@ -67,20 +67,30 @@ package Chess is
     procedure Simulate_Enter;
     procedure Simulate_Leave;
     function Simulated return Boolean;
+    function Is_Valid_Board return Boolean;
 
-    procedure Read_Fen(Line : in String; Last : in Natural);
+    procedure Read_Fen(Line : in String; Last : in Natural)
+    with Post => Is_Valid_Board;
     procedure Load_Fen(Filename : in String);
-    function Write_Fen return String;
+    function Write_Fen return String
+    with Pre => Is_Valid_Board;
     procedure Save_Fen(Filename : in String);
-    procedure Check_Promote_Pawn(Pos : in Coordinate);
-    procedure Move_Piece(Move : in Move_Type);
-    procedure Move_Castling(Side : in Side_Type; Player : in Player_Type);
-    -- procedure Undo_Move; --
+    procedure Check_Promote_Pawn(Pos : in Coordinate)
+    with Pre => not Simulated;
+    procedure Move_Piece(Move : in Move_Type)
+    with Pre => Is_Valid_Board,
+         Post => Is_Valid_Board;
+    procedure Move_Castling(Side : in Side_Type; Player : in Player_Type)
+    with Pre => Is_Valid_Board,
+         Post => Is_Valid_Board;
+    -- procedure Undo_Move; --Chess.Chess.
     function Is_Check(Player : in Player_Type) return Boolean;
     function Get_Piece_At(Position : in Coordinate) return Cell_Type;
     function Save_Board return Board_Save;
-    procedure Revert_Board(Save : Board_Save);
-    function End_Turn return Boolean;
+    procedure Revert_Board(Save : Board_Save)
+    with Post => Is_Valid_Board;
+    function End_Turn return Boolean
+    with Post => Is_Valid_Board and Player'Old /= Player;
     procedure Print;
     function Get_Player_Name(Player : in Player_Type) return String;
 

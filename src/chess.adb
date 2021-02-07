@@ -817,4 +817,73 @@ package body Chess is
         return (if Player = White then "White" else "Black");
     end Get_Player_Name;
 
+    function Is_Valid_Board return Boolean is
+        White_Rook_Q_Origin : Boolean := False;
+        White_Rook_K_Origin : Boolean := False;
+        White_King_Origin : Boolean := False;
+        White_King : Boolean := False;
+        Black_Rook_Q_Origin : Boolean := False;
+        Black_Rook_K_Origin : Boolean := False;
+        Black_King_Origin : Boolean := False;
+        Black_King : Boolean := False;
+    begin
+        for X in Range_Board loop
+            for Y in Range_Board loop
+                if X in Range_Inner_Board and Y in Range_Inner_Board then
+                    if Chess.Board(X, Y).Piece = Forbidden then
+                        return False;
+                    elsif Chess.Board(X, Y).Piece = King then
+                        if Chess.Board(X, Y).Player = White then
+                            if X = 5 and Y = 1 then
+                                White_King_Origin := True;
+                            end if;
+                            White_King := True;
+                        else
+                            if X = 5 and Y = 1 then
+                                Black_King_Origin := True;
+                            end if;
+                            Black_King := True;
+                        end if;
+                    elsif Chess.Board(X, Y).Piece = Rook then
+                        if Chess.Board(X, Y).Player = White then
+                            if X = 1 and Y = 1 then
+                                White_Rook_Q_Origin := True;
+                            elsif X = 8 and Y = 1 then
+                                White_Rook_K_Origin := True;
+                            end if;
+                        else
+                            if X = 1 and Y = 8 then
+                                Black_Rook_Q_Origin := True;
+                            elsif X = 8 and Y = 8 then
+                                Black_Rook_K_Origin := True;
+                            end if;
+                        end if;
+                    end if;
+                else
+                    if Chess.Board(X, Y).Piece /= Forbidden then
+                        return False;
+                    end if;
+                end if;
+            end loop;
+        end loop;
+
+        if Chess.White_Castling_Q and (not White_Rook_Q_Origin or not White_King_Origin) then
+            return False;
+        end if;
+
+        if Chess.White_Castling_K and (not White_Rook_K_Origin or not White_King_Origin) then
+            return False;
+        end if;
+
+        if Chess.Black_Castling_Q and (not Black_Rook_Q_Origin or not Black_King_Origin) then
+            return False;
+        end if;
+
+        if Chess.Black_Castling_K and (not Black_Rook_K_Origin or not Black_King_Origin) then
+            return False;
+        end if;
+
+        return White_King and Black_King;
+    end Is_Valid_Board;
+
 end Chess;
