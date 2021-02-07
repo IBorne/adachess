@@ -52,6 +52,7 @@ procedure Test_Game is
 
     File : File_Type;
 	Line : Integer;
+	Unused_Bool : Boolean;
 begin
 	if Argument_Count < 1 then
 		Put_Line("Usage: ./test_game <path/to/file>");
@@ -64,7 +65,7 @@ begin
 		elsif Argument(I) = "--print" or Argument(I) = "-p" then
 		       Set_Print(True);	
 		else
-			Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
+			Unused_Bool := Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
 
 			Line := 1;
 			declare

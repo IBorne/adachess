@@ -60,8 +60,11 @@ procedure main is
 
         return True;
     end Check_Validity;
+
+    Unused_Bool : Boolean;
 begin
-    Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
+    -- Won't fail
+    Unused_Bool := Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
     Put_Line("Welcome to Adachess");
 
     for I in 1 .. Argument_Count loop
@@ -82,12 +85,15 @@ begin
             if Move_Str /= "" then
                 if Move_Str = "exit" then
                     exit;
-				elsif Move_Str = "load" then
-					declare
-						FEN : String := Get_Line;
-					begin
-						Read_Fen(FEN, FEN'Length);
-					end;
+                elsif Move_Str = "load" then
+                    loop
+                        declare
+                            FEN : String := Get_Line;
+                        begin
+                            exit when Read_Fen(FEN, FEN'Length);
+                            Put_Line("Invalid FEN : " & FEN);
+                        end;
+                    end loop;
                 elsif Move_Str = "save" then
                     declare
                         Length : Natural := 1;
@@ -98,8 +104,8 @@ begin
                     Put_Line("List of commands :");
                     Put_Line("    help: print the list of commands");
                     Put_Line("    exit: exit the game");
-					   Put_Line("    load: prompt a FEN to load");
-					   Put_Line("    save: print the current FEN");
+                    Put_Line("    load: prompt a FEN to load");
+                    Put_Line("    save: print the current FEN");
                     Put_Line("    [a-h][1-8][a-h][1-8]: move a piece");
                     Put_Line("    O-O: perform a Kingside Castling");
                     Put_Line("    O-O-O: perform a Queenside Castling");

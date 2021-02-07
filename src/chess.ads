@@ -70,9 +70,9 @@ package Chess is
     function Simulated return Boolean;
     function Is_Valid_Board return Boolean;
 
-    procedure Read_Fen(Line : in String; Last : in Natural)
+    function Read_Fen(Line : in String; Last : in Natural) return Boolean
     with Post => Is_Valid_Board;
-    procedure Load_Fen(Filename : in String);
+    function Load_Fen(Filename : in String) return Boolean;
     function Write_Fen(Length : out Natural) return String
     with Pre => Is_Valid_Board;
     procedure Save_Fen(Filename : in String);

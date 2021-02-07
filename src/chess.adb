@@ -169,6 +169,11 @@ package body Chess is
             if Len_Up_Left /= 0 then
                 for I in Range_Board range 1 .. Range_Board(Len_Up_Left) loop
                     if Is_Enemy_Queen_Bishop((Pos.X - I, Pos.Y + I), Enemy) then
+                        Print_Debug("Check by Queen or Bishop at the upper left of the king ("
+                                  & Integer'Image(Integer(Pos.X - I)) & ","
+                                  & Integer'Image(Integer(Pos.Y + I)) & " ) -> ("
+                                  & Integer'Image(Integer(Pos.X)) & ","
+                                  & Integer'Image(Integer(Pos.Y)) & " )");
                         return True;
                     end if;
 
@@ -180,6 +185,11 @@ package body Chess is
             if Len_Up_Right /= 0 then
                 for I in Range_Board range 1 .. Range_Board(Len_Up_Right) loop
                     if Is_Enemy_Queen_Bishop((Pos.X + I, Pos.Y + I), Enemy) then
+                        Print_Debug("Check by Queen or Bishop at the right of the king ("
+                                  & Integer'Image(Integer(Pos.X + I)) & ","
+                                  & Integer'Image(Integer(Pos.Y + I)) & " ) -> ("
+                                  & Integer'Image(Integer(Pos.X)) & ","
+                                  & Integer'Image(Integer(Pos.Y)) & " )");
                         return True;
                     end if;
 
@@ -191,6 +201,11 @@ package body Chess is
             if Len_Down_Left /= 0 then
                 for I in Range_Board range 1 .. Range_Board(Len_Down_Left) loop
                     if Is_Enemy_Queen_Bishop((Pos.X - I, Pos.Y - I), Enemy) then
+                        Print_Debug("Check by Queen or Bishop at the right of the king ("
+                                  & Integer'Image(Integer(Pos.X - I)) & ","
+                                  & Integer'Image(Integer(Pos.Y - I)) & " ) -> ("
+                                  & Integer'Image(Integer(Pos.X)) & ","
+                                  & Integer'Image(Integer(Pos.Y)) & " )");
                         return True;
                     end if;
 
@@ -202,6 +217,11 @@ package body Chess is
             if Len_Down_Right /= 0 then
                 for I in Range_Board range 1 .. Range_Board(Len_Down_Right) loop
                     if Is_Enemy_Queen_Bishop((Pos.X + I, Pos.Y - I), Enemy) then
+                        Print_Debug("Check by Queen or Bishop at the right of the king ("
+                                  & Integer'Image(Integer(Pos.X + I)) & ","
+                                  & Integer'Image(Integer(Pos.Y - I)) & " ) -> ("
+                                  & Integer'Image(Integer(Pos.X)) & ","
+                                  & Integer'Image(Integer(Pos.Y)) & " )");
                         return True;
                     end if;
 
@@ -262,8 +282,8 @@ package body Chess is
     end Is_Check;
 
     --------------- FEN Management ---------------
-
-    procedure Place(C : in Character; Position : in out Coordinate) is
+    -- Place piece on the board, return True on error
+    function Place(C : in Character; Position : in out Coordinate) return Boolean is
         Increment               : Range_Board := 1;
     begin
         case C is
@@ -284,19 +304,21 @@ package body Chess is
             when 'B' => Chess.Board(Position.X, Position.Y) := (Bishop, White);
             when 'Q' => Chess.Board(Position.X, Position.Y) := (Queen, White);
             when 'K' => Chess.Board(Position.X, Position.Y) := (King, White);
-            when others => Null;
+            when '/' =>
+                Chess.Board(-1, Position.Y) := (Forbidden, Unknown);
+                Chess.Board(0, Position.Y) := (Forbidden, Unknown);
+                Chess.Board(9, Position.Y) := (Forbidden, Unknown);
+                Chess.Board(10, Position.Y) := (Forbidden, Unknown);
+            when others => return True;
         end case;
 
         if C = '/' then
-            Chess.Board(-1, Position.Y) := (Forbidden, Unknown);
-            Chess.Board(0, Position.Y) := (Forbidden, Unknown);
-            Chess.Board(9, Position.Y) := (Forbidden, Unknown);
-            Chess.Board(10, Position.Y) := (Forbidden, Unknown);
-
             Position := (1, Position.Y - 1);
         else
             Position.X := Position.X + Increment;
         end if;
+
+        return False;
     end Place;
 
     function Collect(Position : in Coordinate) return Character is
@@ -314,7 +336,8 @@ package body Chess is
         end case;
     end Collect;
 
-    procedure Read_Fen(Line : in String; Last : in Natural) is
+    -- Read a FEN and setup the board accordingly, return False on error
+    function Read_Fen(Line : in String; Last : in Natural) return Boolean is
         Index                   : Natural := 1;
         Position                : Coordinate := (1, 8);
     begin
@@ -327,7 +350,13 @@ package body Chess is
 
         while Index <= Last loop
             exit when Line(Index) = ' ';
-            Place(Line(Index), Position);
+
+            if (Place(Line(Index), Position)) then
+                Print_Debug("Invalid piece at position" & Integer'Image(Integer(Index))
+                          & " while reading FEN : " & Line(Index));
+                return False;
+            end if;
+
             Index := Index + 1;
         end loop;
 
@@ -342,6 +371,10 @@ package body Chess is
             Chess.Player := White;
         elsif Line(Index) = 'b' then
             Chess.Player := Black;
+        else
+            Print_Debug("Invalid player at position" & Integer'Image(Integer(Index))
+                          & " while reading FEN : " & Line(Index));
+            return False;
         end if;
         Index := Index + 2;
 
@@ -357,7 +390,10 @@ package body Chess is
                 when 'K' => Chess.White_Castling_K := True;
                 when 'q' => Chess.Black_Castling_Q := True;
                 when 'k' => Chess.Black_Castling_K := True;
-                when others => Null;
+                when others =>
+                    Print_Debug("Invalid castling at position" & Integer'Image(Integer(Index))
+                              & " while reading FEN : " & Line(Index));
+                    return False;
             end case;
             Index := Index + 1;
         end loop;
@@ -366,9 +402,20 @@ package body Chess is
         if Line(Index) = '-' then
             Index := Index + 2;
         else
-            Chess.En_Passant_Target.Y := Character'Pos(Line(Index)) - 96;
+            if Line(Index) < 'a' or 'h' < Line(Index) then
+                Print_Debug("Invalid X coordinate at position" & Integer'Image(Integer(Index))
+                          & " while reading FEN : " & Line(Index));
+                return False;
+            end if;
+            Chess.En_Passant_Target.X := Character'Pos(Line(Index)) - 96;
             Index := Index + 1;
-            Chess.En_Passant_Target.X := Character'Pos(Line(Index)) - 48;
+
+            if Line(Index) < '1' or '8' < Line(Index) then
+                Print_Debug("Invalid Y coordinate at position" & Integer'Image(Integer(Index))
+                          & " while reading FEN : " & Line(Index));
+                return False;
+            end if;
+            Chess.En_Passant_Target.Y := Character'Pos(Line(Index)) - 48;
             Index := Index + 2;
         end if;
 
@@ -378,6 +425,11 @@ package body Chess is
             begin
                 while Index <= Last loop
                     exit when Line(Index) = ' ';
+                    if Line(Index) < '0' or '9' < Line(Index) then
+                        Print_Debug("Invalid Halfmove at position" & Integer'Image(Integer(Index))
+                                  & " while reading FEN : " & Line(Index));
+                        return False;
+                    end if;
                     Index := Index + 1;
                 end loop;
 
@@ -385,13 +437,22 @@ package body Chess is
                 Index := Index + 1;
             end;
 
+            for I in Index .. Last loop
+                if Line(Index) < '0' or '9' < Line(Index) then
+                    Print_Debug("Invalid Fullmove at position" & Integer'Image(Integer(Index))
+                              & " while reading FEN : " & Line(Index));
+                    return False;
+                end if;
+            end loop;
             Chess.Fullmove := Integer'Value(Line(Index .. Last));
         end if;
 
         Chess.Is_Enemy_Check := Is_Check(Chess.Player);
+
+        return True;
     end Read_Fen;
 
-    procedure Load_Fen(Filename : in String) is
+    function Load_Fen(Filename : in String) return Boolean is
         Input                   : File_Type;
         Line                    : String(1..256);
         Last                    : Natural;
@@ -401,11 +462,17 @@ package body Chess is
              Name => Filename);
 
         Get_Line(Input, Line, Last);
-        Read_Fen(Line, Last);
+        if (Read_Fen(Line, Last) = False) then
+            Close(Input);
+            return False;
+        end if;
 
         Close(Input);
+        return True;
     exception
-        when Name_Error => Put_Line("Couldn't find file " & Filename);
+        when Name_Error =>
+            Put_Line("Couldn't find file " & Filename);
+            return False;
     end Load_Fen;
 
     function Write_Fen(Length : out Natural) return String is

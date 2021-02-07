@@ -6,8 +6,9 @@ with Move; use Move;
 
 package body Move_tb is
     procedure test_is_valid_pawn is
+      Unused_Bool : Boolean;
     begin
-	    Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
+	    Unused_Bool := Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
 		Assert(valid_piece_move(((1, 2), (1, 3)), White), "Move_tb (test_is_valid_pawn) : Normal move (2 -> 3) incorrect");
 
 		Assert(valid_piece_move(((1, 2), (1, 4)), White), "Move_tb (test_is_valid_pawn) : Start move (2 -> 4) incorrect");
