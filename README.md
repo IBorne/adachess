@@ -41,7 +41,7 @@ Below is the list of possible controls of Adachess.
 - To **load** a game, please enter `load` followed by the FEN of your game (example: `load rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1`).
 - To **save** a game, please enter `save` which will show you the window corresponds to the part.
 - To **exit** a game, please enter `exit` which will end the current game.
-- For **help**, please type `help` or` h` which will show you the list of available controls.
+- For **help**, please enter `help` or `h` which will show you the list of available controls.
 
 Running the tests
 -----------------
@@ -63,11 +63,11 @@ Authors
 TODO
 ----
 
-chess board..................[0]  
-basic rule...................[0]  
-basic rule...................[0]  
-advanced move................[0]  
-advanced rule................[0]  
-graphical interface..........[X]  
-graphical move highlight.....[X]  
-button command...............[X]  
+-[X] chess board
+-[X] basic rule
+-[X] basic rule
+-[X] advanced move
+-[X] advanced rule
+-[ ] graphical interface
+-[ ] graphical move highlight
+-[ ] button command
