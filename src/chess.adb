@@ -663,8 +663,47 @@ package body Chess is
 
     function Avoid_Checkmate_Bishop(X : in Range_Board; Y : in Range_Board;
                                     Player : in Player_Type; Save : in Board_Save) return Boolean is
+        Left : constant Integer := Integer(X) - Integer(Range_Inner_Board'First);
+        Right : constant Integer := Integer(Range_Inner_Board'Last) - Integer(X);
+        Down : constant Integer := Integer(Y) - Integer(Range_Inner_Board'First);
+        Up : constant Integer := Integer(Range_Inner_Board'Last) - Integer(Y);
+
+        Len_Up_Left : constant Integer := Integer'Min(Up, Left);
+        Len_Up_Right : constant Integer := Integer'Min(Up, Right);
+        Len_Down_Left : constant Integer := Integer'Min(Down, Left);
+        Len_Down_Right : constant Integer := Integer'Min(Down, Right);
     begin
-        -- FIXME
+        if Len_Up_Left /= 0 then
+            for I in Range_Board range 1 .. Range_Board(Len_Up_Left) loop
+                if is_valid_move(((X, Y), (X - I, Y + I)), Player) and then Check_Not_Checkmate((X, Y), (X - I, Y + I), Player, Save) then
+                    return True;
+                end if;
+            end loop;
+        end if;
+
+        if Len_Up_Right /= 0 then
+            for I in Range_Board range 1 .. Range_Board(Len_Up_Right) loop
+                if is_valid_move(((X, Y), (X + I, Y + I)), Player) and then Check_Not_Checkmate((X, Y), (X + I, Y + I), Player, Save) then
+                    return True;
+                end if;
+            end loop;
+        end if;
+
+        if Len_Down_Left /= 0 then
+            for I in Range_Board range 1 .. Range_Board(Len_Down_Left) loop
+                if is_valid_move(((X, Y), (X - I, Y - I)), Player) and then Check_Not_Checkmate((X, Y), (X - I, Y - I), Player, Save) then
+                    return True;
+                end if;
+            end loop;
+        end if;
+
+        if Len_Down_Right /= 0 then
+            for I in Range_Board range 1 .. Range_Board(Len_Down_Right) loop
+                if is_valid_move(((X, Y), (X + I, Y - I)), Player) and then Check_Not_Checkmate((X, Y), (X + I, Y - I), Player, Save) then
+                    return True;
+                end if;
+            end loop;
+        end if;
 
         return False;
     end Avoid_Checkmate_Bishop;
