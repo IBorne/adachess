@@ -88,14 +88,18 @@ begin
 					begin
 						Read_Fen(FEN, FEN'Length);
 					end;
-				elsif Move_Str = "save" then
-					Put_Line(Write_Fen);
+                elsif Move_Str = "save" then
+                    declare
+                        Length : Natural := 1;
+                    begin
+                        Put_Line(Write_Fen(Length)(1 .. Length));
+                    end;
                 elsif Move_Str = "h" or Move_Str = "help" then
                     Put_Line("List of commands :");
                     Put_Line("    help: print the list of commands");
                     Put_Line("    exit: exit the game");
-					Put_Line("    load: prompt a FEN to load");
-					Put_Line("    save: print the current FEN");
+					   Put_Line("    load: prompt a FEN to load");
+					   Put_Line("    save: print the current FEN");
                     Put_Line("    [a-h][1-8][a-h][1-8]: move a piece");
                     Put_Line("    O-O: perform a Kingside Castling");
                     Put_Line("    O-O-O: perform a Queenside Castling");
