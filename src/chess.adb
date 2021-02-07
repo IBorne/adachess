@@ -139,11 +139,62 @@ package body Chess is
             end loop;
         end if;
 
-        -- FIXME: Queen, Bishop
-        -- Diagonal upper left
-        -- Diagonal upper right
-        -- Diagonal lower left
-        -- Diagonal lower right
+        -- Queen, Bishop
+        declare
+            Left : constant Integer := Integer(Pos.X) - Integer(Range_Inner_Board'First);
+            Right : constant Integer := Integer(Range_Inner_Board'Last) - Integer(Pos.X);
+            Down : constant Integer := Integer(Pos.Y) - Integer(Range_Inner_Board'First);
+            Up : constant Integer := Integer(Range_Inner_Board'Last) - Integer(Pos.Y);
+
+            Len_Up_Left : constant Integer := Integer'Min(Up, Left);
+            Len_Up_Right : constant Integer := Integer'Min(Up, Right);
+            Len_Down_Left : constant Integer := Integer'Min(Down, Left);
+            Len_Down_Right : constant Integer := Integer'Min(Down, Right);
+        begin
+            -- Diagonal upper left
+            if Len_Up_Left /= 0 then
+                for I in Range_Board range 1 .. Range_Board(Len_Up_Left) loop
+                    if Is_Enemy_Queen_Bishop((Pos.X - I, Pos.Y + I), Enemy) then
+                        return True;
+                    end if;
+
+                    exit when not Is_Empty_Cell((Pos.X - I, Pos.Y + I));
+                end loop;
+            end if;
+
+            -- Diagonal upper right
+            if Len_Up_Right /= 0 then
+                for I in Range_Board range 1 .. Range_Board(Len_Up_Right) loop
+                    if Is_Enemy_Queen_Bishop((Pos.X + I, Pos.Y + I), Enemy) then
+                        return True;
+                    end if;
+
+                    exit when not Is_Empty_Cell((Pos.X + I, Pos.Y + I));
+                end loop;
+            end if;
+
+            -- Diagonal lower left
+            if Len_Down_Left /= 0 then
+                for I in Range_Board range 1 .. Range_Board(Len_Down_Left) loop
+                    if Is_Enemy_Queen_Bishop((Pos.X - I, Pos.Y - I), Enemy) then
+                        return True;
+                    end if;
+
+                    exit when not Is_Empty_Cell((Pos.X - I, Pos.Y - I));
+                end loop;
+            end if;
+
+            -- Diagonal lower right
+            if Len_Down_Right /= 0 then
+                for I in Range_Board range 1 .. Range_Board(Len_Down_Right) loop
+                    if Is_Enemy_Queen_Bishop((Pos.X + I, Pos.Y - I), Enemy) then
+                        return True;
+                    end if;
+
+                    exit when not Is_Empty_Cell((Pos.X + I, Pos.Y - I));
+                end loop;
+            end if;
+        end;
 
         -- Knight
         if     Get_Piece_At((Pos.X - 1, Pos.Y - 2)) = (Knight, Enemy)
