@@ -299,6 +299,9 @@ package body Chess is
         end case;
 
         if C = '/' then
+            if Position.X /= 9 then
+                return True;
+            end if;
             Position := (1, Position.Y - 1);
         else
             Position.X := Position.X + Increment;
@@ -338,8 +341,15 @@ package body Chess is
             exit when Line(Index) = ' ';
 
             if (Place(Line(Index), Position)) then
-                Print_Debug("Invalid piece at position" & Integer'Image(Integer(Index))
-                          & " while reading FEN : " & Line(Index));
+                if Position.X /= 9 then
+                    Print_Debug("Wrong number of pieces at row #" & Integer'Image(8 - Integer(Position.Y))
+                              & " while reading FEN :" & Integer'Image(Integer(Position.X) - 1)
+                              & ", expected 8");
+                else
+                    Print_Debug("Invalid piece at position" & Integer'Image(Integer(Index))
+                              & " while reading FEN : " & Line(Index));
+                end if;
+
                 return False;
             end if;
 
@@ -359,7 +369,7 @@ package body Chess is
             Chess.Player := Black;
         else
             Print_Debug("Invalid player at position" & Integer'Image(Integer(Index))
-                          & " while reading FEN : " & Line(Index));
+                      & " while reading FEN : " & Line(Index));
             return False;
         end if;
         Index := Index + 2;
