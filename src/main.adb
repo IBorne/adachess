@@ -60,8 +60,11 @@ procedure main is
 
         return True;
     end Check_Validity;
+
+	Unused_Bool : Boolean;
 begin
-    Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
+	-- Won't fail
+    Unused_Bool := Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
     Put_Line("Welcome to Adachess");
 
     for I in 1 .. Argument_Count loop
@@ -83,11 +86,14 @@ begin
                 if Move_Str = "exit" then
                     exit;
 				elsif Move_Str = "load" then
-					declare
-						FEN : String := Get_Line;
-					begin
-						Read_Fen(FEN, FEN'Length);
-					end;
+					loop
+						declare
+							FEN : String := Get_Line;
+						begin
+							exit when Read_Fen(FEN, FEN'Length);
+							Put_Line("Invalid FEN : " & FEN);
+						end;
+					end loop;
 				elsif Move_Str = "save" then
 					Put_Line(Write_Fen);
                 elsif Move_Str = "h" or Move_Str = "help" then
