@@ -63,11 +63,11 @@ Authors
 TODO
 ----
 
--[X] chess board
--[X] basic rule
--[X] basic rule
--[X] advanced move
--[X] advanced rule
+-[x] chess board
+-[x] basic rule
+-[x] basic rule
+-[x] advanced move
+-[x] advanced rule
 -[ ] graphical interface
 -[ ] graphical move highlight
 -[ ] button command
