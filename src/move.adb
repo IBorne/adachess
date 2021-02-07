@@ -36,7 +36,6 @@ package body Move is
         if dy_rel = 1 and abs dx = 1 then
             -- Capture piece : en passant
             if Get_Piece_At(Move.Target).Piece = Empty then
-                -- FIXME: verify if En_Passant_Target is Invalid if there is no En_Passant
                 return En_Passant_Target = Move.Target;
             -- Capture piece : diagonal 1
             else
