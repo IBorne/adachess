@@ -461,10 +461,9 @@ package body Chess is
             return False;
     end Load_Fen;
 
-    function Write_Fen return String is
+    function Write_Fen(Length : out Natural) return String is
         Line                    : String(1 .. 256);
         Index                   : Natural := 1;
-        Number                  : String(1 .. 256);
     begin
         for Y in reverse Range_Inner_Board loop
             declare
@@ -539,34 +538,32 @@ package body Chess is
             Line(Index) := Character'Val(Chess.En_Passant_Target.Y + 48);
             Index := Index + 1;
         end if;
-        Line(Index) := ' ';
-        Index := Index + 1;
 
-        Number := Integer'Image(Chess.Halfmove) & " ";
-        for Char of Number loop
+        for Char of Integer'Image(Chess.Halfmove) loop
             Line(Index) := Char;
             Index := Index + 1;
         end loop;
 
-        Number := Integer'Image(Chess.Fullmove);
-        for Char of Number loop
+        for Char of Integer'Image(Chess.Fullmove) loop
             Line(Index) := Char;
             Index := Index + 1;
         end loop;
 
+        Length := Index - 1;
         return Line;
     end Write_Fen;
 
     procedure Save_Fen(Filename : in String) is
         Output                  : File_Type;
         Line                    : String(1 .. 256) := (others => ' ');
+        Length                  : Natural := 1;
     begin
         Create(File => Output,
                Mode => Out_File,
                Name => Filename);
 
-        Line := Write_Fen;
-        Put_Line(Output, Line);
+        Line := Write_Fen(Length);
+        Put_Line(Output, Line(1 .. Length));
 
         Close(Output);
     end Save_Fen;

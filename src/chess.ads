@@ -72,7 +72,7 @@ package Chess is
     function Read_Fen(Line : in String; Last : in Natural) return Boolean
     with Post => Is_Valid_Board;
     function Load_Fen(Filename : in String) return Boolean;
-    function Write_Fen return String
+    function Write_Fen(Length : out Natural) return String
     with Pre => Is_Valid_Board;
     procedure Save_Fen(Filename : in String);
     procedure Check_Promote_Pawn(Pos : in Coordinate)
