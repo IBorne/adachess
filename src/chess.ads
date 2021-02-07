@@ -63,6 +63,7 @@ package Chess is
     -- Move_List           : Move_List_Type; --
 
     procedure Set_Debug(Debug : Boolean);
+    procedure Set_Print(Print_Debug_Var : Boolean);
     procedure Print_Debug(Str : String);
     procedure Simulate_Enter;
     procedure Simulate_Leave;
@@ -92,6 +93,7 @@ package Chess is
     function End_Turn return Boolean
     with Post => Is_Valid_Board and Player'Old /= Player;
     procedure Print;
+    procedure Print_Board_Debug;
     function Get_Player_Name(Player : in Player_Type) return String;
 
 private
@@ -102,6 +104,7 @@ private
     Fullmove            : Natural := 1;
 
     Debug               : Boolean := False;
+    Print_Debug_Var 	: Boolean := False;
     Simulate            : Natural := 0;
 
 end Chess;
