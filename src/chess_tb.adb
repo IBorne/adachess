@@ -5,8 +5,9 @@ with Chess; use Chess;
 
 package body Chess_tb is
     procedure test_get_piece_at is
+		Unused_Bool : Boolean;
     begin
-	    Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
+	    Unused_Bool := Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56);
 
 		for X in Range_Inner_Board loop
 			Assert(get_piece_at((X, 2)) = (Pawn, White), "Chess_tb (test_get_piece_at) : White pawn incorrect");
