@@ -42,6 +42,13 @@ package body Chess_tb is
     begin
         if (Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPP/RNBQKBNR w KQkq - 0 1", 54)) then Put_Line("Chess_tb (test_read_fen) : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPP/RNBQKBNR w KQkq - 0 1' should be incorrect"); end if;
         if (Read_Fen("rnbqkbnr/pppppppp/8/6/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56)) then Put_Line("Chess_tb (test_read_fen) : 'rnbqkbnr/pppppppp/8/6/8/8/PPPPPP/RNBQKBNR w KQkq - 0 1' should be incorrect"); end if;
+        if (Read_Fen("rnbqkbvr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 56)) then Put_Line("Chess_tb (test_read_fen) : 'rnbqkbvr/pppppppp/8/8/8/8/PPPPPP/RNBQKBNR w KQkq - 0 1' should be incorrect"); end if;
+        if (Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR m KQkq - 0 1", 56)) then Put_Line("Chess_tb (test_read_fen) : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPP/RNBQKBNR m KQkq - 0 1' should be incorrect"); end if;
+        if (Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KPkq - 0 1", 56)) then Put_Line("Chess_tb (test_read_fen) : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPP/RNBQKBNR w KPkq - 0 1' should be incorrect"); end if;
+        if (Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq a9 0 1", 56)) then Put_Line("Chess_tb (test_read_fen) : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPP/RNBQKBNR w KQkq a9 0 1' should be incorrect"); end if;
+        if (Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq y5 0 1", 56)) then Put_Line("Chess_tb (test_read_fen) : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPP/RNBQKBNR w KQkq y5 0 1' should be incorrect"); end if;
+        if (Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq a3 a5 1", 56)) then Put_Line("Chess_tb (test_read_fen) : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPP/RNBQKBNR w KQkq a9 0 1' should be incorrect"); end if;
+        if (Read_Fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 h1", 56)) then Put_Line("Chess_tb (test_read_fen) : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPP/RNBQKBNR w KQkq a9 0 1' should be incorrect"); end if;
         Put_Line("Chess_tb - test_read_fen : finished");
     end test_read_fen;
 
