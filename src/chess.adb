@@ -2,6 +2,12 @@ with Move; use Move;
 
 package body Chess is
 
+    function Integer_Image(I : in Integer) return String is
+        S : String := Integer'Image(I);
+    begin
+        return S(S'First + 1 .. S'Last);
+    end Integer_Image;
+
     procedure Set_Debug(Debug : Boolean) is
     begin
         Chess.Debug := Debug;
@@ -356,7 +362,7 @@ package body Chess is
 
             if (Place(Line(Index), Position)) then
                 if Position.X /= 9 then
-                    Print_Debug("Wrong number of pieces at row #" & Integer'Image(8 - Integer(Position.Y))
+                    Print_Debug("Wrong number of pieces at row #" & Integer_Image(8 - Integer(Position.Y))
                               & " while reading FEN :" & Integer'Image(Integer(Position.X) - 1)
                               & ", expected 8");
                 else
@@ -420,7 +426,7 @@ package body Chess is
             Chess.En_Passant_Target.X := Character'Pos(Line(Index)) - 96;
             Index := Index + 1;
 
-            if Line(Index) < '1' or '8' < Line(Index) then
+            if Line(Index) /= '3' and Line(Index) /= '6' then
                 Print_Debug("Invalid Y coordinate at position" & Integer'Image(Integer(Index))
                           & " while reading FEN : " & Line(Index));
                 return False;
