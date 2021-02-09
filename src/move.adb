@@ -172,30 +172,33 @@ package body Move is
             return False;
         end if;
 
-        if Is_Enemy_Check then
-            declare
-                Is_Own_Check : Boolean;
-                Board : Board_Save := Save_Board;
-            begin
-                Simulate_Enter;
-
-                -- Make the move
-                Move_Piece(Move);
-                -- Check if king is still check
-                Is_Own_Check := Is_Check(Player);
-                -- Revert the board
-                Revert_Board(Board);
-
-                Simulate_Leave;
-
-                if Is_Own_Check then
-                    Print_Debug("You are still in check after your move");
-                    return False;
-                end if;
-            end;
+        if valid_piece_move(Move, Player) = False then
+            Print_Debug("Wrong move");
+            return False;
         end if;
 
-        return valid_piece_move(Move, Player);
+        declare
+            Is_Own_Check : Boolean;
+            Board : Board_Save := Save_Board;
+        begin
+            Simulate_Enter;
+
+            -- Make the move
+            Move_Piece(Move);
+            -- Check if king is still check
+            Is_Own_Check := Is_Check(Player);
+            -- Revert the board
+            Revert_Board(Board);
+
+            Simulate_Leave;
+
+            if Is_Own_Check then
+                Print_Debug("You are in check after your move");
+                return False;
+            end if;
+        end;
+
+        return True;
     end is_valid_move;
 
     function is_valid_castling(Side : in Side_Type; Player : in Player_Type) return Boolean is
