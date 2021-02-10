@@ -406,6 +406,7 @@ package body Chess is
                 when 'K' => Chess.White_Castling_K := True;
                 when 'q' => Chess.Black_Castling_Q := True;
                 when 'k' => Chess.Black_Castling_K := True;
+                when '-' => Null;
                 when others =>
                     Print_Debug("Invalid castling at position" & Integer'Image(Integer(Index))
                               & " while reading FEN : " & Line(Index));
