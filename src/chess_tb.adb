@@ -27,14 +27,14 @@ package body Chess_tb is
             if get_piece_at((X, 7)) /= (Pawn, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black pawn incorrect"); end if;
         end loop;
 
-        if get_piece_at((1, 8)) = (Rook, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black rook incorrect"); end if;
-        if get_piece_at((2, 8)) = (Knight, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black knight incorrect"); end if;
-        if get_piece_at((3, 8)) = (Bishop, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black bishop incorrect"); end if;
-        if get_piece_at((4, 8)) = (Queen, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black king incorrect"); end if;
-        if get_piece_at((5, 8)) = (King, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black queen incorrect"); end if;
-        if get_piece_at((6, 8)) = (Bishop, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black bishop incorrect"); end if;
-        if get_piece_at((7, 8)) = (Knight, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black knight incorrect"); end if;
-        if get_piece_at((8, 8)) = (Rook, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black rook incorrect"); end if;
+        if get_piece_at((1, 8)) /= (Rook, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black rook incorrect"); end if;
+        if get_piece_at((2, 8)) /= (Knight, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black knight incorrect"); end if;
+        if get_piece_at((3, 8)) /= (Bishop, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black bishop incorrect"); end if;
+        if get_piece_at((4, 8)) /= (Queen, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black king incorrect"); end if;
+        if get_piece_at((5, 8)) /= (King, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black queen incorrect"); end if;
+        if get_piece_at((6, 8)) /= (Bishop, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black bishop incorrect"); end if;
+        if get_piece_at((7, 8)) /= (Knight, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black knight incorrect"); end if;
+        if get_piece_at((8, 8)) /= (Rook, Black) then Put_Line("Chess_tb (test_get_piece_at) : Black rook incorrect"); end if;
         Put_Line("Chess_tb - test_get_piece_at (Black pieces) : finished");
     end test_get_piece_at;
 
