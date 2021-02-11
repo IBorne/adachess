@@ -111,7 +111,7 @@ begin
                     Put_Line("    O-O-O: perform a Queenside Castling");
                 elsif Check_Validity(Move_Str) then
                     if End_Turn then
-                        Put_Line((if Player = Black then "White" else "Black") & " won.");
+                        Put_Line(Get_Player_Name(Get_Enemy(Player)) & " won.");
                         exit;
                     end if;
                 end if;
