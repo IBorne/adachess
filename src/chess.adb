@@ -937,7 +937,6 @@ package body Chess is
                 Put_Line(Get_Player_Name(Player) & " is check");
             else
                 Put_Line(Get_Player_Name(Player) & " is checkmate");
-                Player := Get_Enemy(Player);
                 return True;
             end if;
         end if;
