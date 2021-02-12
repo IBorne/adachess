@@ -83,7 +83,6 @@ begin
 							Print_Board_Debug;
 							if Check_Validity(Move_Str, Move) then
 								if End_Turn then
-									Put_Line((if Player = Black then "White" else "Black") & " won.");
 									exit;
 								end if;
 							else
@@ -103,7 +102,7 @@ begin
 				end loop;
 
 				if End_Of_File(File) then
-					Put_Line((if Player = Black then "White" else "Black") & " won.");
+					Put_Line(Get_Player_Name(Get_Enemy(Player)) & " won.");
 				end if;
 
 				Player := White;

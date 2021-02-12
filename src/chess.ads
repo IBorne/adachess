@@ -94,6 +94,7 @@ package Chess is
     with Post => Is_Valid_Board and Player'Old /= Player;
     procedure Print;
     procedure Print_Board_Debug;
+    function Get_Enemy(Player : in Player_Type) return Player_Type;
     function Get_Player_Name(Player : in Player_Type) return String;
 
 private
