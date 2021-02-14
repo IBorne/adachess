@@ -2,7 +2,7 @@ CC=gnatmake
 SRC=src/chess.adb src/move.adb
 LIB=
 
-BIN = main test game_test #perft
+BIN = main test game_test gui #perft
 
 all: ${BIN}
 
@@ -16,6 +16,9 @@ test: ${SRC} src/chess_tb.adb src/move_tb.adb src/test.adb
 #	${CC} ${LIB} $^
 
 game_test: ${SRC} src/test_game.adb
+	${CC} ${LIB} $^
+
+gui: ${SRC} src/gui.adb
 	${CC} ${LIB} $^
 
 clean:
